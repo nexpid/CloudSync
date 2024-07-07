@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Post,
   Put,
+  Query,
   Res,
 } from "@nestjs/common";
 import { AuthService } from "../auth/auth.service";
@@ -14,7 +15,6 @@ import { Response } from "express";
 import { DbService, UserDataSchema } from "../../lib/db/db.service";
 import { UserDataDto } from "../../lib/db/user-data.dto";
 import { decompressData } from "../../lib/db/conversion";
-import crypto from "crypto";
 
 @Controller("api/data")
 export class DataController {
@@ -80,16 +80,22 @@ export class DataController {
   @Get("raw")
   async downloadRaw(
     @Headers("authorization") token: string,
+    /** Used as a bypass for iOs users, since RNFS is missing so the file can't be downloaded with code */
+    @Query("auth") tokenBypass: string,
     @Res() res: Response,
   ) {
-    const user = await this.authService.getUser(token);
+    const user = await this.authService.getUser(token ?? tokenBypass);
     if (!user) return res.status(HttpStatus.UNAUTHORIZED).send("Unauthorized");
 
     try {
       const data = await this.dbService.retrieveUserData(user.userId);
       if (!data) return res.status(HttpStatus.NO_CONTENT).send("No data");
 
-      const hash = crypto.createHash("sha256").update(data.data).digest("hex");
+      const hash = Buffer.from(
+        await crypto.subtle.digest("SHA-1", new TextEncoder().encode("Balls")),
+      )
+        .toString("hex")
+        .slice(0, 8);
 
       res
         .header("content-type", "text/plain")
