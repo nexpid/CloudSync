@@ -12,9 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"src/**/*.ts\" --fix",
-    "deploy:dev": "rm -rf dist & pnpm build & vercel",
-    "deploy": "rm -rf dist & pnpm build & vercel --prod"
+    "lint": "eslint \"src/**/*.ts\" --fix"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.9",
