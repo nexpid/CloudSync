@@ -92,7 +92,10 @@ export class DataController {
       if (!data) return res.status(HttpStatus.NO_CONTENT).send("No data");
 
       const hash = Buffer.from(
-        await crypto.subtle.digest("SHA-1", new TextEncoder().encode("Balls")),
+        await crypto.subtle.digest(
+          "SHA-1",
+          new TextEncoder().encode(data.data),
+        ),
       )
         .toString("hex")
         .slice(0, 8);
