@@ -1,7 +1,7 @@
 import {
   brotliCompress as _brotliCompress,
   brotliDecompress as _brotliDecompress,
-} from "zlib";
+} from "node:zlib";
 import { UserData, UserDataSchema } from "./db.service";
 import { promisify } from "util";
 

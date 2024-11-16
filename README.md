@@ -6,7 +6,7 @@
 </h1>
 
 <p align="center">
-  A service built using <a href="https://nestjs.com/" target="_blank">NestJS</a> to save plugins, themes and fonts to the cloud.
+  A service built using <a href="https://hono.dev/" target="_blank">Hono</a> to save plugins, themes and fonts to the cloud.
 </p>
 
 <div align="center">
@@ -27,10 +27,6 @@
   </a>
 </div>
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
 ## Installation
 
 ```bash
@@ -39,21 +35,14 @@ $ pnpm install
 
 ## Running the app
 
-<a href="https://vercel.com/new/git/external?repository-url=https%3A%2F%2Fgithub.com%2Fnexpid%2FCloudSync%2Ftree%2Fmain">
-  <img alt="Deploy with Vercel" src="https://vercel.com/button">
-</a>
-
 ```bash
 # development
-$ pnpm run start
+$ pnpm run dev
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# deploy
+$ pnpm run deploy
 ```
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+MIT

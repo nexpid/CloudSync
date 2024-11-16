@@ -1,5 +1,5 @@
 import Cloudflare from "cloudflare";
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 
 const { dbId, bearerToken, accountId } = JSON.parse(
   readFileSync("test/creds.json", "utf8"),
@@ -15,4 +15,4 @@ cf.d1.database
     sql: "select * from data where user = ?",
     params: ["000000000000000000"],
   })
-  .then((x) => console.log(x[0].results[0]));
+  .then((x: any) => console.log(x[0].results[0]));

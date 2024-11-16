@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { UserData } from "../src/lib/db/db.service";
+import { UserData } from "../oldsrc/lib/db/db.service";
 
 const { tempApiKey } = JSON.parse(readFileSync("test/creds.json", "utf8"));
 

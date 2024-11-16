@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { deconstruct, reconstruct } from "../src/lib/db/conversion";
-import { UserData } from "../src/lib/db/db.service";
+import { deconstruct, reconstruct } from "../oldsrc/lib/db/conversion";
+import { UserData } from "../oldsrc/lib/db/db.service";
 import { brotliCompressSync, brotliDecompressSync } from "zlib";
 
 const basePluginRoot =
