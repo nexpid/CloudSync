@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-function hslToHex(h, s, l) {
+function hslToHex(h: number, s: number, l: number) {
   l /= 100;
   const a = (s * Math.min(l, 1 - l)) / 100;
   const f = (n) => {
@@ -13,8 +13,9 @@ function hslToHex(h, s, l) {
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-const mixClr = (a: number, b: number, mix: number) =>
-  Math.floor(a * mix + b * (1 - mix));
+function mixClr(a: number, b: number, mix: number) {
+  return Math.floor(a * mix + b * (1 - mix));
+}
 
 @Injectable()
 export class SillyService {
@@ -54,5 +55,18 @@ export class SillyService {
 
   getBanner() {
     return `<svg width="4080" height="1440" viewBox="0 0 4080 1440" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_415_2)"><rect width="4080" height="1440" fill="#00FF00"/><path d="M487.586 1119.97C149.312 921.613 -25.4568 1114.72 -90.3807 1262.93L-80.6816 1560.16L4068.1 1583.56C4320.93 1439.33 4783.34 932.844 4384.57 930.265C3859.74 926.87 3506.53 903.199 3345.5 812.223C2946.5 586.815 2778.58 1169.31 2349.93 1031.35C1698.5 821.686 1860.04 1227.13 1502.54 1059C701.091 682.087 733.057 1263.91 487.586 1119.97Z" fill="#FF0000"/><path d="M555.516 512.263C284.233 613.031 -3.65607 435.047 -113.69 333.458L-86.207 -190.953L4375.05 10.7165L4563.53 318.577C4366.24 308.237 3790.02 725.597 3571.16 379.919C3421.07 142.863 3297.45 612.724 2442.28 207.407C2223.8 103.856 2514.38 983.018 1735.09 574.081C939.431 156.555 894.621 386.302 555.516 512.263Z" fill="#0000FF"/></g><defs><clipPath id="clip0_415_2"><rect width="4080" height="1440" fill="white"/></clipPath></defs></svg>`;
+  }
+
+  // https://github.com/Equicord/Equicord/blob/85faac8c3f8b6beea2d2a61134b65ddffa872fd5/src/plugins/fakeProfileThemes/index.tsx#L43-L53
+  getFtpe(primary: string, accent: string) {
+    const message = `[${primary},${accent}]`;
+    const padding = "";
+    const encoded = Array.from(message)
+      .map((x) => x.codePointAt(0))
+      .filter((x) => x! >= 0x20 && x! <= 0x7f)
+      .map((x) => String.fromCodePoint(x! + 0xe0000))
+      .join("");
+
+    return (padding || "") + " " + encoded;
   }
 }

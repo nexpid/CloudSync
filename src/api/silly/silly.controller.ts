@@ -10,9 +10,19 @@ import { Response } from "express";
 import { SillyService } from "./silly.service";
 import { ConfigService } from "@nestjs/config";
 import { Resvg } from "@resvg/resvg-js";
-import { Routes } from "discord-api-types/v10";
+import {
+  CDNRoutes,
+  ImageFormat,
+  RouteBases,
+  Routes,
+} from "discord-api-types/v10";
 
 let stillTooSilly = false;
+
+const description = `Syncs your Bunny plugins, themes and fonts to the cloud!
+« https://github.com/nexpid/CloudSync »
+« https://bunny.nexpid.xyz/cloud-sync »
+« https://discord.gg/ddcQf3s2Uq »`;
 
 @Controller("api/silly")
 export class SillyController {
@@ -70,25 +80,69 @@ export class SillyController {
         .render()
         .asPng()
         .toString("base64");
+    const ftpe = this.sillyService.getFtpe(colors.cloud, colors.bg);
 
-    const changed = await (
-      await fetch(`https://discord.com/api/v10${Routes.user("@me")}`, {
-        method: "PATCH",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bot ${this.configService.get("CLIENT_TOKEN")}`,
-        },
-        body: JSON.stringify({
-          avatar: iconSvg,
-          banner: bannerSvg,
-        }),
-      })
-    ).json();
+    // "Bot " is included in the token
+    const id = this.configService.get("CLIENT_ID"),
+      token = this.configService.get("CLIENT_TOKEN");
+    const changedIconReq = await fetch(RouteBases.api + `/applications/${id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        authorization: token,
+      },
+      body: JSON.stringify({
+        icon: iconSvg,
+        description: `${description}${ftpe}`,
+      }),
+    });
+    const changedIcon = await changedIconReq.json();
+
+    const changedBannerReq = await fetch(RouteBases.api + Routes.user(), {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        authorization: token,
+      },
+      body: JSON.stringify({
+        banner: bannerSvg,
+      }),
+    });
+    const changedBanner = await changedBannerReq.json();
 
     stillTooSilly = false;
 
-    if (!changed?.id)
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(changed);
-    else return res.send("Yay!");
+    if (!changedIcon?.id || !changedBanner?.id)
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        logs: [changedIcon, changedBanner].filter((x) => !x.id),
+        ratelimits: [
+          [...changedIconReq.headers.entries()],
+          [...changedBannerReq.headers.entries()],
+        ].filter((req) =>
+          Object.fromEntries(
+            req.filter(([prop]) =>
+              ["retry-after", "ratelimit"].some((key) =>
+                prop.toLowerCase().includes(key),
+              ),
+            ),
+          ),
+        ),
+        success: false,
+      });
+    else
+      return res.json({
+        colors,
+        banner:
+          RouteBases.cdn +
+          CDNRoutes.userBanner(id, changedBanner.banner, ImageFormat.PNG),
+        avatar:
+          RouteBases.cdn +
+          CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
+        icon:
+          RouteBases.cdn +
+          CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
+        ftpe,
+        success: true,
+      });
   }
 }
