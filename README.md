@@ -35,6 +35,8 @@ $ pnpm install
 
 ## Running the app
 
+Fill in the `.dev.vars` file and upload the secrets to your Cloudflare worker for deployment
+
 ```bash
 # development
 $ pnpm run dev
