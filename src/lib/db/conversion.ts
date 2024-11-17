@@ -2,8 +2,8 @@ import {
   brotliCompress as _brotliCompress,
   brotliDecompress as _brotliDecompress,
 } from "node:zlib";
-import { UserData, UserDataSchema } from "./db.service";
 import { promisify } from "node:util";
+import { UserData, UserDataSchema } from ".";
 
 const brotliCompress = promisify(_brotliCompress);
 const brotliDecompress = promisify(_brotliDecompress);
@@ -200,9 +200,7 @@ export async function decompressData(
   data: string,
   decompOnly: boolean = false,
 ) {
-  const decomp = (
-    await brotliDecompress(Buffer.from(data, "base64"))
-  ).toString();
+  const decomp = (await brotliDecompress(Buffer.from(data, "base64"))).toString();
 
   if (decompOnly === true) return decomp;
   else return reconstruct(decomp);
