@@ -79,10 +79,7 @@ data.get("/raw", async (c) => {
     if (!data) return c.body(null, HttpStatus.NO_CONTENT);
 
     const hash = Buffer.from(
-      await crypto.subtle.digest(
-        "SHA-1",
-        new TextEncoder().encode(data.data),
-      ),
+      await crypto.subtle.digest("SHA-1", new TextEncoder().encode(data.data)),
     )
       .toString("hex")
       .slice(0, 8);

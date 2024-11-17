@@ -72,7 +72,8 @@ export async function runSilly() {
 
   // "Bot " is included in the token
   //FIXME - Use real env
-  const id = "", token = "";
+  const id = "",
+    token = "";
   // const id = env.CLIENT_ID,
   //   token = env.CLIENT_TOKEN;
   const changedIconReq = await fetch(RouteBases.api + `/applications/${id}`, {

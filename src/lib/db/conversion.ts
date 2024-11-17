@@ -200,7 +200,9 @@ export async function decompressData(
   data: string,
   decompOnly: boolean = false,
 ) {
-  const decomp = (await brotliDecompress(Buffer.from(data, "base64"))).toString();
+  const decomp = (
+    await brotliDecompress(Buffer.from(data, "base64"))
+  ).toString();
 
   if (decompOnly === true) return decomp;
   else return reconstruct(decomp);
