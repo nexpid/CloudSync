@@ -7,7 +7,7 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
-    "@resvg/resvg-js": "^2.6.2",
+    "@resvg/resvg-wasm": "^2.6.2",
     "cloudflare": "^3.5.0",
     "discord-api-types": "^0.37.105",
     "hono": "^4.6.10",
