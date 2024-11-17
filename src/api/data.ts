@@ -4,7 +4,6 @@ import {
   retrieveUserData,
   saveUserData,
   deleteUserData,
-  type UserData,
   UserDataSchema,
 } from "src/lib/db";
 import { getUser } from "src/lib/auth";
@@ -33,13 +32,14 @@ data.get("/", async (c) => {
 data.put(
   "/",
   validator("json", (value, c) => {
-    const parsed = UserDataSchema.validate(value);
-    if (parsed.error) return c.json(parsed.error, HttpStatus.BAD_REQUEST);
+    const parsed = UserDataSchema.safeParse(value);
+    if (parsed.error)
+      return c.text(parsed.error.toString(), HttpStatus.BAD_REQUEST);
 
-    return parsed.value;
+    return parsed.data;
   }),
   async (c) => {
-    const data = (await c.req.valid("json")) as UserData;
+    const data = c.req.valid("json");
 
     const user = await getUser(c.req.header("Authorization"));
     if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);

@@ -6,6 +6,7 @@
     "ts": "ts-node -T",
     "dev": "wrangler dev --env=local",
     "deploy": "wrangler deploy --minify",
+    "dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
     "runtime": "wrangler types --experimental-include-runtime"
   },
   "dependencies": {
@@ -13,8 +14,8 @@
     "cloudflare": "^3.5.0",
     "discord-api-types": "^0.37.105",
     "hono": "^4.6.10",
-    "joi": "^17.13.3",
-    "jose": "^5.9.6"
+    "jose": "^5.9.6",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.8.3",

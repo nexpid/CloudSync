@@ -1,22 +1,42 @@
-import * as Joi from "joi";
+import { z } from "zod";
 import { compressData, decompressData } from "./conversion";
 import Cloudflare from "cloudflare";
 import { env } from "../env";
 
-export type UserData = {
-  plugins: Record<string, { enabled: boolean; storage?: string }>;
-  themes: Record<string, { enabled: boolean }>;
-  fonts: {
-    installed: Record<string, { enabled: boolean }>;
-    custom: {
-      spec: number;
-      name: string;
-      previewText?: string;
-      main: Record<string, string>;
-      enabled: boolean;
-    }[];
-  };
-};
+export const UserDataSchema = z.object({
+  plugins: z.record(
+    z.string().url(),
+    z.object({
+      enabled: z.boolean(),
+      storage: z.custom((data) => {
+        if (typeof data !== "string") return false;
+        try {
+          JSON.parse(data);
+          return true;
+        } catch {
+          return false;
+        }
+      }, "Plugin storage must be valid JSON"),
+    }),
+  ),
+  themes: z.record(
+    z.string().url(),
+    z.object({
+      enabled: z.boolean(),
+    }),
+  ),
+  fonts: z.object({
+    installed: z.record(
+      z.string().url(),
+      z.object({
+        enabled: z.boolean(),
+      }),
+    ),
+    custom: z.array(z.record(z.string(), z.any())),
+  }),
+});
+export type UserData = z.infer<typeof UserDataSchema>;
+
 export type ApiUserData = {
   data: UserData;
   at: string;
@@ -33,45 +53,6 @@ interface v1UserData {
     options: object;
   }[];
 }
-
-//FIXME - Switch to zod
-export const UserDataSchema = Joi.object({
-  plugins: Joi.object()
-    .pattern(
-      Joi.string().uri(),
-      Joi.object({
-        enabled: Joi.boolean(),
-        storage: Joi.string().custom((value, helpers) => {
-          try {
-            JSON.parse(value);
-          } catch {
-            return helpers.error("Plugin storage must be valid JSON");
-          }
-          return value;
-        }),
-      }),
-    )
-    .required(),
-  themes: Joi.object()
-    .pattern(
-      Joi.string().uri(),
-      Joi.object({
-        enabled: Joi.boolean(),
-      }),
-    )
-    .required(),
-  fonts: Joi.object({
-    installed: Joi.object()
-      .pattern(
-        Joi.string().uri(),
-        Joi.object({
-          enabled: Joi.boolean(),
-        }),
-      )
-      .required(),
-    custom: Joi.array().items(Joi.object()).required(),
-  }).required(),
-});
 
 export async function sql<DataStructure>(
   query: string,

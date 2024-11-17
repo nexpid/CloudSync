@@ -113,7 +113,7 @@ export function reconstruct(data: string) {
 }
 
 export function deconstruct(data: UserData) {
-  const { error } = UserDataSchema.validate(data);
+  const { error } = UserDataSchema.safeParse(data);
   if (error) throw error;
 
   const chunks = new Array<string>();
