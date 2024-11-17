@@ -38,6 +38,9 @@ $ pnpm install
 Fill in the `.dev.vars` file and upload the secrets to your Cloudflare worker for deployment
 
 ```bash
+# generate runtime.d.ts
+$ pnpm run types
+
 # development
 $ pnpm run dev
 

@@ -10,7 +10,7 @@ JWT_SECRET="......................................................."
 CLIENT_ID=".................."
 CLIENT_SECRET="................................."
 REDIRECT_URI="https://..................../api/auth/authorize"
-LOCAL_REDIRECT_URI="http://localhost:3000/api/auth/authorize"
+LOCAL_REDIRECT_URI="http://localhost:8787/api/auth/authorize"
 
 # optional and only used for /api/silly
 CLIENT_TOKEN="Bot ...................................................."

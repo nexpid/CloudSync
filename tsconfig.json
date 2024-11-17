@@ -16,6 +16,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "types": ["@cloudflare/workers-types/2023-07-01"]
+    "types": ["./.wrangler/types/runtime.d.ts"]
   }
 }
