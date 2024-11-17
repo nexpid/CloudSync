@@ -1,5 +1,7 @@
-import Cloudflare from "cloudflare";
+// Tests a random D1 query
+
 import { readFileSync } from "node:fs";
+import Cloudflare from "cloudflare";
 
 const { dbId, bearerToken, accountId } = JSON.parse(
   readFileSync("test/creds.json", "utf8"),

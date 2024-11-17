@@ -1,7 +1,14 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { deconstruct, reconstruct } from "../oldsrc/lib/db/conversion";
-import { UserData } from "../oldsrc/lib/db/db.service";
-import { brotliCompressSync, brotliDecompressSync } from "zlib";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
+import { UserData } from "../src/lib/db";
+import { deconstruct, reconstruct } from "../src/lib/db/conversion";
+
+process.emit = ((originalEmit) => function (name: any, data: any) {
+  if (name === "warning" && data?.name === "DeprecationWarning")
+      return false;
+
+  return originalEmit.apply(process, arguments);
+})(process.emit) as any;
 
 const basePluginRoot =
   "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
@@ -82,28 +89,32 @@ const compare = (a: any, b: any) => {
   const siz = Buffer.byteLength(a);
   const sizB = Buffer.byteLength(b);
 
-  const change = 100 - Math.floor((siz / sizB) * 100);
-  return `${byteSizer(siz)} (${change > 0 ? "-" : "+"}${change}%)`;
+  const change = -(100 - Math.floor((siz / sizB) * 100));
+  return `${byteSizer(siz)} (${change > 0 ? "+" : ""}${change}%)`;
 };
 
 console.log("Old data size:", byteSizer(Buffer.byteLength(rawData)));
 console.log("New data size:", compare(str, rawData));
 console.log("New brotli compressed data size:", compare(brotli, str));
+console.log("New base64'd brotli compressed data size:", compare(brotli.toString("base64"), brotli));
 
-if (!existsSync("mock")) mkdirSync("mock");
-writeFileSync("mock/raw-data.json", rawData);
-writeFileSync("mock/data.txt", str);
-writeFileSync("mock/compressed-data.txt", brotli);
+if (!existsSync("test/mock")) mkdirSync("test/mock");
+writeFileSync("test/mock/raw-data.json", rawData);
+writeFileSync("test/mock/data.txt", str);
+writeFileSync("test/mock/compressed-data.txt", brotli);
 
 let greatSuccess = true;
 try {
   reconstruct(
-    brotliDecompressSync(readFileSync("mock/compressed-data.txt")).toString(),
+    brotliDecompressSync(readFileSync("test/mock/compressed-data.txt")).toString(),
   );
 } catch {
   greatSuccess = false;
 }
 
-console.log(
-  `\nDid we pass the write → read check? ... ${greatSuccess ? "yes!" : "no.."}`,
+process.stdout.write(
+  `\nDid we pass the write → read check? ... `,
 );
+setTimeout(() => {
+  console.log(greatSuccess ? "yes!" : "no..");
+}, 1000);
