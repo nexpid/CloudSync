@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { compressData, decompressData } from "./conversion";
-import Cloudflare from "cloudflare";
 import { env } from "../env";
+import { Cloudflare } from "../cloudflare";
 
 export const UserDataSchema = z.object({
   plugins: z.record(
@@ -58,16 +58,11 @@ export async function sql<DataStructure>(
   query: string,
   params: string[],
 ): Promise<DataStructure> {
-  const { apiToken, dbId, account_id } = {
-    apiToken: env.CLOUDFLARE_D1_BEARER_TOKEN,
-    dbId: env.CLOUDFLARE_D1_DATABASE_ID,
-    account_id: env.CLOUDFLARE_ACCOUNT_ID,
-  };
-
   return (
-    await new Cloudflare({
-      apiToken,
-    }).d1.database.query(dbId, { account_id, sql: query, params })
+    await new Cloudflare(
+      env.CLOUDFLARE_D1_BEARER_TOKEN,
+      env.CLOUDFLARE_ACCOUNT_ID,
+    ).d1(env.CLOUDFLARE_D1_DATABASE_ID, { sql: query, params })
   )[0].results[0] as any;
 }
 

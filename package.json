@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@resvg/resvg-wasm": "^2.6.2",
-    "cloudflare": "^3.5.0",
     "discord-api-types": "^0.37.105",
     "hono": "^4.6.10",
     "jose": "^5.9.6",
