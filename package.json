@@ -3,6 +3,7 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
+    "ts": "ts-node -T",
     "dev": "wrangler dev --env=local",
     "deploy": "wrangler deploy --minify",
     "runtime": "wrangler types --experimental-include-runtime"

@@ -3,13 +3,6 @@ import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
 import { UserData } from "../src/lib/db";
 import { deconstruct, reconstruct } from "../src/lib/db/conversion";
 
-process.emit = ((originalEmit) => function (name: any, data: any) {
-  if (name === "warning" && data?.name === "DeprecationWarning")
-      return false;
-
-  return originalEmit.apply(process, arguments);
-})(process.emit) as any;
-
 const basePluginRoot =
   "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
 const baseThemeRoot = "https://raw.githubusercontent.com/user/themes/main/";
