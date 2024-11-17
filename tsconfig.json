@@ -16,6 +16,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "types": ["./.wrangler/types/runtime.d.ts"]
+    "types": ["node", "./.wrangler/types/runtime.d.ts"]
   }
 }
