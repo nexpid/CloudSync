@@ -1,9 +1,9 @@
 import {
   brotliCompress as _brotliCompress,
   brotliDecompress as _brotliDecompress,
-} from "zlib";
-import { UserData, UserDataSchema } from "./db.service";
-import { promisify } from "util";
+} from "node:zlib";
+import { promisify } from "node:util";
+import { UserData, UserDataSchema } from ".";
 
 const brotliCompress = promisify(_brotliCompress);
 const brotliDecompress = promisify(_brotliDecompress);
@@ -113,7 +113,7 @@ export function reconstruct(data: string) {
 }
 
 export function deconstruct(data: UserData) {
-  const { error } = UserDataSchema.validate(data);
+  const { error } = UserDataSchema.safeParse(data);
   if (error) throw error;
 
   const chunks = new Array<string>();

@@ -1,7 +1,6 @@
-import { readFileSync } from "fs";
-import { UserData } from "../src/lib/db/db.service";
+// Generates random mock data for testing
 
-const { tempApiKey } = JSON.parse(readFileSync("test/creds.json", "utf8"));
+import { UserData } from "../src/lib/db";
 
 const basePluginRoot =
   "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
@@ -68,13 +67,4 @@ const mockData: UserData = {
   },
 };
 
-fetch("http://localhost:3000/api/data", {
-  method: "PUT",
-  headers: {
-    "content-type": "application/json",
-    authorization: tempApiKey,
-  },
-  body: JSON.stringify(mockData),
-})
-  .then((x) => x.text())
-  .then(console.log);
+console.log(JSON.stringify(mockData));

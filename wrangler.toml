@@ -1,0 +1,20 @@
+name = "cloudsync"
+main = "src/index.ts"
+compatibility_date = "2024-11-16"
+compatibility_flags = [ "nodejs_compat_v2" ]
+vars = { ENVIRONMENT = "production" }
+
+[triggers]
+crons = ["0 2 * * *"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[env.local.vars]
+ENVIRONMENT = "local"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
