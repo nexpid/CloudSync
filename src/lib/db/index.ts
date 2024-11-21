@@ -8,15 +8,17 @@ export const UserDataSchema = z.object({
     z.string().url(),
     z.object({
       enabled: z.boolean(),
-      storage: z.custom((data) => {
-        if (typeof data !== "string") return false;
-        try {
-          JSON.parse(data);
-          return true;
-        } catch {
-          return false;
-        }
-      }, "Plugin storage must be valid JSON"),
+      storage: z
+        .custom((data) => {
+          if (typeof data !== "string") return false;
+          try {
+            JSON.parse(data);
+            return true;
+          } catch {
+            return false;
+          }
+        }, "Plugin storage must be valid JSON")
+        .optional(),
     }),
   ),
   themes: z.record(
