@@ -132,7 +132,7 @@ export function deconstruct(data: UserData) {
     subChunks.push(url.replace(noInvalidChars, ""));
     if (enabled) subChunks.push("1");
 
-    const dt = stripNoCloudSync(JSON.parse(storage));
+    const dt = storage && stripNoCloudSync(JSON.parse(storage));
     if (dt && Boolean(Object.keys(dt).length))
       subChunks.push(JSON.stringify(dt).replace(noInvalidChars, ""));
 

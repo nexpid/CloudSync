@@ -9,7 +9,7 @@ export const UserDataSchema = z.object({
     z.object({
       enabled: z.boolean(),
       storage: z
-        .custom((data) => {
+        .custom<string | undefined>((data) => {
           if (typeof data !== "string") return false;
           try {
             JSON.parse(data);
