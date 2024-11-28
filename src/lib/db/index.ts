@@ -137,7 +137,7 @@ export async function retrieveUserData(
       });
 
       const at = new Date().toUTCString();
-      this.saveUserData(userId, newData, at);
+      saveUserData(userId, newData, at);
       return { data: newData, at };
     } catch (e) {
       throw new Error(`Failed to migrate your data to v2: ${e.message}`);
