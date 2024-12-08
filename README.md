@@ -39,7 +39,7 @@ Fill in the `.dev.vars` file and upload the secrets to your Cloudflare worker fo
 
 ```bash
 # generate runtime.d.ts
-$ pnpm run types
+$ pnpm run runtime
 
 # development
 $ pnpm run dev
