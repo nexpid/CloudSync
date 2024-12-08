@@ -18,9 +18,9 @@ const description = `Syncs your Bunny plugins, themes and fonts to the cloud!
 « https://discord.gg/ddcQf3s2Uq »`;
 
 export async function runSilly() {
-  if (!env.CLIENT_TOKEN) return console.log({ silly: { enabled: false } });
+  if (!env.CLIENT_TOKEN) return console.debug({ silly: { enabled: false } });
 
-  if (doingSilly) return console.log({ silly: { busy: true } });
+  if (doingSilly) return console.warn({ silly: { busy: true } });
 
   doingSilly = true;
   if (!initiated) {
@@ -28,12 +28,10 @@ export async function runSilly() {
       await initWasm(resvgWasm);
       initiated = true;
     } catch (error) {
-      console.log({ silly: { resvg: false, error } });
+      console.error({ silly: { resvg: false, error } });
       return (doingSilly = false);
     }
   }
-
-  console.log({ silly: { success: null } });
 
   const colors = SillyService.getRandomColors();
 
@@ -71,11 +69,8 @@ export async function runSilly() {
   const ftpe = SillyService.getFtpe(colors.cloud, colors.bg);
 
   // "Bot " is included in the token
-  //FIXME - Use real env
-  const id = "",
-    token = "";
-  // const id = env.CLIENT_ID,
-  //   token = env.CLIENT_TOKEN;
+  const id = env.CLIENT_ID,
+    token = env.CLIENT_TOKEN;
   const changedIconReq = await fetch(RouteBases.api + `/applications/${id}`, {
     method: "PATCH",
     headers: {
@@ -104,35 +99,39 @@ export async function runSilly() {
   doingSilly = false;
 
   if (!changedIcon?.id || !changedBanner?.id)
-    return console.log({
-      logs: [changedIcon, changedBanner].filter((x) => !x.id),
-      ratelimits: [
-        [...changedIconReq.headers.entries()],
-        [...changedBannerReq.headers.entries()],
-      ].filter((req) =>
-        Object.fromEntries(
-          req.filter(([prop]) =>
-            ["retry-after", "ratelimit"].some((key) =>
-              prop.toLowerCase().includes(key),
+    return console.error({
+      silly: {
+        logs: [changedIcon, changedBanner].filter((x) => !x.id),
+        ratelimits: [
+          [...changedIconReq.headers.entries()],
+          [...changedBannerReq.headers.entries()],
+        ].filter((req) =>
+          Object.fromEntries(
+            req.filter(([prop]) =>
+              ["retry-after", "ratelimit"].some((key) =>
+                prop.toLowerCase().includes(key),
+              ),
             ),
           ),
         ),
-      ),
-      success: false,
+        success: false,
+      },
     });
   else
-    return console.log({
-      colors,
-      banner:
-        RouteBases.cdn +
-        CDNRoutes.userBanner(id, changedBanner.banner, ImageFormat.PNG),
-      avatar:
-        RouteBases.cdn +
-        CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
-      icon:
-        RouteBases.cdn +
-        CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
-      ftpe,
-      success: true,
+    return console.debug({
+      silly: {
+        colors,
+        banner:
+          RouteBases.cdn +
+          CDNRoutes.userBanner(id, changedBanner.banner, ImageFormat.PNG),
+        avatar:
+          RouteBases.cdn +
+          CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
+        icon:
+          RouteBases.cdn +
+          CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
+        ftpe,
+        success: true,
+      },
     });
 }
