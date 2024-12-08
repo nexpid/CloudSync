@@ -102,17 +102,20 @@ export async function runSilly() {
     return console.error({
       silly: {
         logs: [changedIcon, changedBanner].filter((x) => !x.id),
-        ratelimits: [
-          [...changedIconReq.headers.entries()],
-          [...changedBannerReq.headers.entries()],
-        ].filter((req) =>
-          Object.fromEntries(
-            req.filter(([prop]) =>
-              ["retry-after", "ratelimit"].some((key) =>
-                prop.toLowerCase().includes(key),
+        ratelimits: Object.fromEntries(
+          (
+            [
+              ["icon", [...changedIconReq.headers.entries()]],
+              ["banner", [...changedBannerReq.headers.entries()]],
+            ] as [string, [string, string][]][]
+          ).map(([key, values]) => [
+            key,
+            Object.fromEntries(
+              values.filter(([header]) =>
+                header.toLowerCase().includes("x-rate"),
               ),
             ),
-          ),
+          ]),
         ),
         success: false,
       },

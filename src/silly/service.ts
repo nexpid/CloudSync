@@ -24,7 +24,7 @@ export class SillyService {
     };
 
     const baseH = Math.floor(Math.random() * 360);
-    const baseS = Math.floor(Math.random() * 90 * 1.1);
+    const baseS = Math.floor(Math.random() * 80 + 15);
     const baseL = Math.floor(Math.random() * 10 + 55);
 
     const outlineDiff = Math.floor(Math.random() * 5 + 20);
@@ -33,13 +33,23 @@ export class SillyService {
     colors.cloudOutline = hslToHex(
       baseH,
       baseS,
-      baseL + (Math.random() <= 0.6 ? outlineDiff / 2 : -outlineDiff),
+      Math.min(
+        baseL + (Math.random() <= 0.6 ? outlineDiff / 2 : -outlineDiff),
+        100,
+      ),
     );
 
-    const bgHDiff = Math.floor(Math.random() * 45 + 45);
-    const bgH = 360 + (Math.random() <= 0.6 ? bgHDiff : -bgHDiff);
-    const bgS = mixClr(Math.floor(Math.random() * 90 * 1.1), baseS, 0.9);
-    const bgL = mixClr(Math.floor(Math.random() * 10 + 55), baseL, 0.9);
+    const bgHDiff = Math.floor(Math.random() * 45 + 30);
+    const bgH =
+      Math.abs(baseH + (Math.random() <= 0.6 ? bgHDiff / 2 : -bgHDiff)) % 360;
+    const bgS = Math.min(
+      mixClr(Math.floor(Math.random() * 80 + 15), baseS, 0.9),
+      100,
+    );
+    const bgL = Math.min(
+      mixClr(Math.floor(Math.random() * 10 + 55), baseL, 0.9),
+      100,
+    );
 
     colors.bg = hslToHex(bgH, bgS, bgL);
 
