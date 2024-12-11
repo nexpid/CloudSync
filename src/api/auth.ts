@@ -9,7 +9,7 @@ import { HttpStatus } from "src/lib/http-status";
 
 const auth = new Hono<{ Bindings: Env }>();
 
-auth.get("/authorize", async (c) => {
+auth.get("/authorize", async function authorize(c) {
   const code = c.req.query("code");
   if (!code || code.length !== 30 || !code.match(/^[a-z0-9]+$/i))
     return c.text("Missing 'code'", HttpStatus.BAD_REQUEST);

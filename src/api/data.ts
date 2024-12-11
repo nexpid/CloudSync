@@ -13,8 +13,7 @@ import { HttpStatus } from "src/lib/http-status";
 
 const data = new Hono<{ Bindings: Env }>();
 
-// getData
-data.get("/", async (c) => {
+data.get("/", async function getData(c) {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
 
@@ -22,13 +21,12 @@ data.get("/", async (c) => {
     const data = await getUserData(user.userId);
 
     c.header("Last-Modified", data?.at);
-    return c.json(data?.data);
+    return c.json(data?.data || null);
   } catch (e) {
     return c.text(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 });
 
-// saveData
 data.put(
   "/",
   validator("json", (value, c) => {
@@ -38,7 +36,7 @@ data.put(
 
     return parsed.data;
   }),
-  async (c) => {
+  async function saveData(c) {
     const data = c.req.valid("json");
 
     const user = await getUser(c.req.header("Authorization"));
@@ -53,8 +51,7 @@ data.put(
   },
 );
 
-// deleteData
-data.delete("/", async (c) => {
+data.delete("/", async function deleteData(c) {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
 
@@ -66,8 +63,7 @@ data.delete("/", async (c) => {
   }
 });
 
-// downloadData
-data.get("/raw", async (c) => {
+data.get("/raw", async function downloadData(c) {
   // Used as a bypass for iOs users, since RNFS is missing so the file can't be downloaded with code
   const user = await getUser(
     c.req.header("Authorization") ?? c.req.query("auth"),
@@ -96,8 +92,7 @@ data.get("/raw", async (c) => {
   }
 });
 
-//decompressRawData
-data.post("/decompress", async (c) => {
+data.post("/decompress", async function decompressRawData(c) {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
 
