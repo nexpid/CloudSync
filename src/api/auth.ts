@@ -14,7 +14,9 @@ auth.get("/authorize", async function authorize(c) {
   if (!code || code.length !== 30 || !code.match(/^[a-z0-9]+$/i))
     return c.text("Missing 'code'", HttpStatus.BAD_REQUEST);
 
-  let accessToken: RESTPostOAuth2AccessTokenResult;
+  let accessToken:
+    | RESTPostOAuth2AccessTokenResult
+    | { error: string; error_description?: string };
   try {
     accessToken = await (
       await fetch(
@@ -38,12 +40,15 @@ auth.get("/authorize", async function authorize(c) {
         },
       )
     ).json();
-  } catch {
-    return c.text("Invalid OAuth2 code", HttpStatus.BAD_REQUEST);
+  } catch (e) {
+    return c.text(`Invalid OAuth2 code (${e})`, HttpStatus.BAD_REQUEST);
   }
 
-  if (!accessToken.access_token)
-    return c.text("Invalid OAuth2 code", HttpStatus.BAD_REQUEST);
+  if (!("access_token" in accessToken))
+    return c.text(
+      `Invalid OAuth2 code response (${[accessToken.error, accessToken.error_description].filter((x) => x).join(", ")})`,
+      HttpStatus.BAD_REQUEST,
+    );
 
   const { id } = (await (
     await fetch(`https://discord.com/api/v10${Routes.user("@me")}`, {
