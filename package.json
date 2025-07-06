@@ -1,7 +1,7 @@
 {
 	"name": "cloud-sync",
 	"scripts": {
-		"format": "prettier --write \"src/**/*.ts\"",
+		"format": "dprint fmt \"src/**/*.ts\"",
 		"lint": "eslint \"src/**/*.ts\" --fix",
 		"ts": "ts-node -T",
 		"dev": "wrangler dev --env=local",
