@@ -1,3 +1,3 @@
 declare module "*.wasm" {
-  export default WebAssembly.Module;
+	export default WebAssembly.Module;
 }

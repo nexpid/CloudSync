@@ -1,8 +1,8 @@
 {
-    "recommendations": [
-      "usernamehw.errorlens",
-      "dbaeumer.vscode-eslint",
-      "esbenp.prettier-vscode",
-      "yoavbls.pretty-ts-errors"
-    ]
-  }
+	"recommendations": [
+		"usernamehw.errorlens",
+		"dbaeumer.vscode-eslint",
+		"yoavbls.pretty-ts-errors",
+		"dprint.dprint"
+	]
+}

@@ -1,32 +1,33 @@
 {
-  "name": "cloud-sync",
-  "scripts": {
-    "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "eslint \"src/**/*.ts\" --fix",
-    "ts": "ts-node -T",
-    "dev": "wrangler dev --env=local",
-    "deploy": "wrangler deploy --minify",
-    "dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
-    "runtime": "wrangler types --experimental-include-runtime"
-  },
-  "dependencies": {
-    "@resvg/resvg-wasm": "^2.6.2",
-    "discord-api-types": "^0.37.105",
-    "hono": "^4.6.10",
-    "jose": "^5.9.6",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/node": "^20.8.3",
-    "@typescript-eslint/eslint-plugin": "^8.14.0",
-    "@typescript-eslint/parser": "^8.14.0",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "prettier": "^3.3.3",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.3",
-    "wrangler": "^3.95.0"
-  },
-  "packageManager": "pnpm@9.12.3"
+	"name": "cloud-sync",
+	"scripts": {
+		"format": "prettier --write \"src/**/*.ts\"",
+		"lint": "eslint \"src/**/*.ts\" --fix",
+		"ts": "ts-node -T",
+		"dev": "wrangler dev --env=local",
+		"deploy": "wrangler deploy --minify",
+		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
+		"runtime": "wrangler types --experimental-include-runtime"
+	},
+	"dependencies": {
+		"@resvg/resvg-wasm": "^2.6.2",
+		"discord-api-types": "^0.38.4",
+		"hono": "^4.7.9",
+		"jose": "^6.0.11",
+		"zod": "^3.24.4"
+	},
+	"devDependencies": {
+		"@eslint/eslintrc": "^3.3.1",
+		"@eslint/js": "^9.26.0",
+		"@types/node": "^22.15.17",
+		"@typescript-eslint/eslint-plugin": "^8.32.0",
+		"@typescript-eslint/parser": "^8.32.0",
+		"eslint": "^9.26.0",
+		"globals": "^16.1.0",
+		"prettier": "^3.5.3",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.3",
+		"wrangler": "^4.14.4"
+	},
+	"packageManager": "pnpm@10.10.0"
 }
