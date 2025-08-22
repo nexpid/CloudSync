@@ -13,7 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
