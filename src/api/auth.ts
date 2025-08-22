@@ -1,6 +1,7 @@
 import {
 	RESTGetAPICurrentUserResult,
 	RESTPostOAuth2AccessTokenResult,
+	RouteBases,
 	Routes,
 } from "discord-api-types/v10";
 import { Hono } from "hono";
@@ -15,53 +16,58 @@ auth.get("/authorize", async function authorize(c) {
 		return c.text("Missing 'code'", HttpStatus.BAD_REQUEST);
 	}
 
-	let accessToken:
-		| RESTPostOAuth2AccessTokenResult
-		| { error: string; error_description?: string };
-	try {
-		accessToken = await (
-			await fetch(
-				`https://discord.com/api/v10${Routes.oauth2TokenExchange()}`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded",
-					},
-					body: new URLSearchParams({
-						client_id: c.env.CLIENT_ID,
-						client_secret: c.env.CLIENT_SECRET,
-						code,
-						grant_type: "authorization_code",
-						redirect_uri: c.env.ENVIRONMENT === "production"
-							? c.env.REDIRECT_URI
-							: c.env.LOCAL_REDIRECT_URI,
-						scope: "identify",
-					}),
-				},
-			)
-		).json();
-	} catch (e) {
-		return c.text(`Invalid OAuth2 code (${e})`, HttpStatus.BAD_REQUEST);
-	}
-
-	if (!("access_token" in accessToken)) {
-		return c.text(
-			`Invalid OAuth2 code response (${
-				[accessToken.error, accessToken.error_description].filter((x) => x).join(", ")
-			})`,
-			HttpStatus.BAD_REQUEST,
-		);
-	}
-
-	const { id } = (await (
-		await fetch(`https://discord.com/api/v10${Routes.user("@me")}`, {
+	const response = await fetch(
+		`${RouteBases.api}${Routes.oauth2TokenExchange()}`,
+		{
+			method: "POST",
 			headers: {
-				authorization: `${accessToken.token_type} ${accessToken.access_token}`,
+				"Content-Type": "application/x-www-form-urlencoded",
 			},
-		})
-	).json()) as RESTGetAPICurrentUserResult;
+			body: new URLSearchParams({
+				client_id: c.env.CLIENT_ID,
+				client_secret: c.env.CLIENT_SECRET,
+				code,
+				grant_type: "authorization_code",
+				redirect_uri: c.env.ENVIRONMENT === "production"
+					? c.env.REDIRECT_URI
+					: c.env.LOCAL_REDIRECT_URI,
+				scope: "identify",
+			}),
+		},
+	);
 
-	return c.text(await createToken(id));
+	const text = await response.text();
+	if (!response.ok) {
+		if (text.includes("error code: 1015")) {
+			return c.text("Ratelimited, please try again later!", HttpStatus.TOO_MANY_REQUESTS);
+		} else return c.text(`Invalid OAuth2 code: ${text}`, HttpStatus.BAD_REQUEST);
+	}
+
+	try {
+		const accessToken:
+			| RESTPostOAuth2AccessTokenResult
+			| { error: string; error_description?: string } = JSON.parse(text);
+		if (!("access_token" in accessToken)) {
+			return c.text(
+				`Invalid OAuth2 code response (${
+					[accessToken.error, accessToken.error_description].filter((x) => x).join(", ")
+				})`,
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+
+		const { id } = (await (
+			await fetch(`${RouteBases.api}${Routes.user("@me")}`, {
+				headers: {
+					authorization: `${accessToken.token_type} ${accessToken.access_token}`,
+				},
+			})
+		).json()) as RESTGetAPICurrentUserResult;
+
+		return c.text(await createToken(id));
+	} catch (e) {
+		return c.text(`Invalid OAuth2 API response: ${response}`, HttpStatus.BAD_REQUEST);
+	}
 });
 
 export default auth;
