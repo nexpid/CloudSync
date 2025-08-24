@@ -20,5 +20,9 @@
 			"./worker-configuration.d.ts",
 			"node"
 		]
-	}
+	},
+	"exclude": [
+		"./dist",
+		"./test"
+	]
 }

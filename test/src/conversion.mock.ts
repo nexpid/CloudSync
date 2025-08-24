@@ -1,8 +1,8 @@
 import { exists, mkdir, rm } from "node:fs/promises";
 import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
 
-import type { UserData } from "../src/lib/db";
-import { deconstruct, reconstruct } from "../src/lib/db/conversion";
+import type { UserData } from "../../src/lib/db";
+import { deconstruct, reconstruct } from "../../src/lib/db/conversion";
 
 const basePluginRoot = "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
 const baseThemeRoot = "https://raw.githubusercontent.com/user/themes/main/";

@@ -1,6 +1,6 @@
 // Generates random mock data for testing
 
-import type { UserData } from "../src/lib/db";
+import type { UserData } from "../../src/lib/db";
 
 const basePluginRoot = "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
 const baseThemeRoot = "https://raw.githubusercontent.com/user/themes/main/";

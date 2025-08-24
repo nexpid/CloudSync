@@ -1,6 +1,6 @@
 // Tests a random D1 query
 
-import { Cloudflare } from "../src/lib/cloudflare";
+import { Cloudflare } from "../../src/lib/cloudflare";
 
 const { dbId, bearerToken, accountId } = await Bun.file("test/creds.json").json() as {
 	dbId: string;

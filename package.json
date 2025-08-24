@@ -4,10 +4,10 @@
 		"dev": "wrangler dev --env=local",
 		"deploy": "wrangler deploy --minify",
 		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
+		"runtime": "wrangler types",
 		"format": "dprint fmt",
 		"lint": "eslint --fix",
-		"runtime": "wrangler types",
-		"typecheck": "bun run runtime && tsc"
+		"typecheck": "bun run runtime && tsc --noEmit"
 	},
 	"dependencies": {
 		"discord-api-types": "^0.38.21",
