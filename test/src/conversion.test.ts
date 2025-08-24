@@ -107,11 +107,17 @@ await Bun.write("test/mock/brotli-compressed-data.txt", brotli.toString("base64"
 
 let greatSuccess = true;
 try {
-	reconstruct(
+	const recon = reconstruct(
 		brotliDecompressSync(
 			Buffer.from(await Bun.file("test/mock/brotli-compressed-data.txt").text(), "base64"),
 		).toString(),
 	);
+	await Bun.write(
+		"test/mock/out-data.json",
+		JSON.stringify(recon),
+	);
+
+	greatSuccess = Bun.deepEquals(mockData, recon);
 } catch {
 	greatSuccess = false;
 }

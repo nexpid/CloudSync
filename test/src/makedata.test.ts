@@ -12,20 +12,18 @@ const mockData: UserData = {
 			`${basePluginRoot}${crypto.randomUUID()}`,
 			{
 				enabled: Math.random() < 0.5,
-				storage: JSON.stringify(
-					Object.fromEntries(
-						Object.entries({
-							someValue: 0,
-							thing: true,
-							someOtherProperty: false,
-							extremelyLongPropertyName: {
-								enabled: true,
-								bumpscosity: Math.random(),
-							},
-							yetAnotherProperty: [Math.random(), false, "Hi!"],
-						}).filter(() => Math.random() < 0.5),
-					),
-				),
+				storage: JSON.stringify(Object.fromEntries(
+					Object.entries({
+						someValue: 0,
+						thing: true,
+						someOtherProperty: false,
+						extremelyLongPropertyName: {
+							enabled: true,
+							bumpscosity: Math.random(),
+						},
+						yetAnotherProperty: [Math.random(), false, "Hi!"],
+					}).filter(() => Math.random() < 0.5),
+				)),
 			},
 		]),
 	),
