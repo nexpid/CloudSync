@@ -36,7 +36,7 @@ type APIResponse = APIResponseOk | APIResponseErr;
 
 // this is kinda jank but it's the only thing that works lol
 function isAPIResponseErr(res: APIResponse): res is APIResponseErr {
-	return !res.success || "errors" in res;
+	return !res.success;
 }
 
 export class Cloudflare {
@@ -67,7 +67,7 @@ export class Cloudflare {
 
 		if (isAPIResponseErr(res)) {
 			throw new CloudflareError(
-				res.errors[0]
+				res.errors?.[0]
 					? res.errors.map((x) => `[${x.code}] ${x.message}`).join(", ")
 					: "Unknown error",
 			);
