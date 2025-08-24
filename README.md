@@ -1,7 +1,7 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/icon-bright.svg" height="32">
-    <img alt="Cloud Sync Icon" src="./assets/icon-dim.svg" height="32">
+    <img alt="Icon" src="./assets/icon-dim.svg" height="32">
   </picture> Cloud Sync
 </h1>
 
@@ -30,24 +30,35 @@
 ## Installation
 
 ```bash
-# install without optional dependencies
+# install without optionalDependencies
 $ bun install --omit=optional
+```
 
-# make .dev.vars
-$ cp .dev.vars.example .dev.vars
+## Selfhosting
 
-# supply env variables
-$ vi .dev.vars
+### Prerequsities
 
-# update secrets
+You need:
+
+- [Cloudflare D1 database](https://developers.cloudflare.com/d1/)[^1]
+- [Discord application](https://discord.com/developers/applications)[^2]
+- Randomly generated JWT secret[^3]
+
+Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in. Then run:
+
+```bash
+# publish secrets
 $ bunx wrangler secret bulk .dev.vars
 ```
 
-## Running the app
+### Running
 
 ```bash
 # development
 $ bun run dev
+
+# bench the size of your deployment
+$ bun run dry-deploy
 
 # deploy
 $ bun run deploy
@@ -55,24 +66,35 @@ $ bun run deploy
 
 ## Silly service
 
-A cron schedule that runs every day at **2:00 AM UTC** which gives the bot a randomized avatar, banner and even [FPTE](https://vencord.dev/plugins/FakeProfileThemes) color theme. This is disabled by default.\
-To enable:
+A cron schedule that runs every day at **2:00 AM UTC** which gives the bot a randomized avatar, banner and even [FPTE](https://vencord.dev/plugins/FakeProfileThemes) color theme. This is disabled by default.
+
+This requires your discord application to have a user bot. After creating one, save its token in `.dev.vars`:
+
+```
+# optional and only used for Silly cron schedule
+CLIENT_TOKEN="Bot [your token here]"
+```
+
+Then run:
 
 ```bash
-# install optional dependencies
+# install with optional dependencies
 $ bun install
 
-# add your bot's CLIENT_TOKEN to the env
-$ vi .dev.vars
-
-# update secrets
+# publish secrets
 $ bunx wrangler secret bulk .dev.vars
 ```
 
 ## Testing
 
-There aren't any real tests available at the moment. If you're feeling brave enough, feel free to write some!
+There are some basic tests in the `test` folder, but if you're feeling brave enough, feel free to write some actual unit tests!
 
 ## License
 
 MIT
+
+[^1]: setup guide is [here](./HOW_TO_D1.md)
+
+[^2]: creating a Discord bot (seperate from an application) is only required if you need a bot token (for exaple for the [silly service](#silly-service))
+
+[^3]: run `bun run test/src/jwt.ts`

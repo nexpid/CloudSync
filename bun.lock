@@ -5,7 +5,6 @@
       "name": "cloud-sync",
       "dependencies": {
         "discord-api-types": "^0.38.21",
-        "eslint-plugin-simple-import-sort": "^12.1.1",
         "hono": "^4.9.4",
         "jose": "^6.0.13",
         "zod": "^4.1.1",
@@ -14,6 +13,7 @@
         "@eslint/js": "^9.34.0",
         "@types/node": "^24.3.0",
         "eslint": "^9.34.0",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
         "globals": "^16.3.0",
         "typescript": "^5.9.2",
         "typescript-eslint": "^8.40.0",
