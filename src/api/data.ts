@@ -76,16 +76,12 @@ data.get("/raw", async function downloadData(c) {
 		const data = await retrieveUserData(user.userId);
 		if (!data) return c.body(null, HttpStatus.NO_CONTENT);
 
-		const hash = Buffer.from(
-			await crypto.subtle.digest("SHA-1", new TextEncoder().encode(data.data)),
-		)
-			.toString("hex")
-			.slice(0, 8);
+		const today = new Date().toISOString().replace(/T/, "_").replace(/:/g, "").replace(/\..+$/, "");
 
 		c.header("content-type", "text/plain");
 		c.header(
 			"content-disposition",
-			`attachment; filename="CloudSync_${hash}.txt"`,
+			`attachment; filename="CloudSync-${today}.txt"`,
 		);
 		c.header("last-modified", data.at);
 		return c.text(data.data);
