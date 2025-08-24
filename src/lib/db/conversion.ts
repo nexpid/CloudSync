@@ -71,12 +71,12 @@ export function reconstruct(data: string) {
 
 		dataObj.plugins[url] = {
 			enabled: Boolean(enabled),
-			storage,
+			storage: storage || "{}",
 		};
 	}
 
-	for (const font of customFonts.split("\u0001")) {
-		const [spec, src, enabled] = font.split("\u0000");
+	for (const font of customFonts.split("\x01")) {
+		const [spec, src, enabled] = font.split("\x00");
 		if (Number.isNaN(Number(spec)) || !src) continue;
 
 		let raw: object;
@@ -93,8 +93,8 @@ export function reconstruct(data: string) {
 		});
 	}
 
-	for (const theme of themes.split("\u0001")) {
-		const [url, enabled] = theme.split("\u0000");
+	for (const theme of themes.split("\x01")) {
+		const [url, enabled] = theme.split("\x00");
 		if (!url) continue;
 
 		try {
@@ -108,8 +108,8 @@ export function reconstruct(data: string) {
 		};
 	}
 
-	for (const font of installedFonts.split("\u0001")) {
-		const [url, enabled] = font.split("\u0000");
+	for (const font of installedFonts.split("\x01")) {
+		const [url, enabled] = font.split("\x00");
 		if (!url) continue;
 
 		try {
@@ -151,7 +151,7 @@ export function deconstruct(data: UserData) {
 			subChunks.push(JSON.stringify(dt).replace(noInvalidChars, ""));
 		}
 
-		pluginChunks.push(subChunks.join("\u0000"));
+		pluginChunks.push(subChunks.join("\x00"));
 	}
 
 	// CUSTOM FONTS
@@ -166,7 +166,7 @@ export function deconstruct(data: UserData) {
 		subChunks.push(JSON.stringify(fontData));
 		if (font.enabled) subChunks.push("1");
 
-		customFontChunks.push(subChunks.join("\u0000"));
+		customFontChunks.push(subChunks.join("\x00"));
 	}
 
 	// THEMES
@@ -177,7 +177,7 @@ export function deconstruct(data: UserData) {
 		subChunks.push(url.replace(noInvalidChars, ""));
 		if (enabled) subChunks.push(enabled ? "1" : "0");
 
-		themeChunks.push(subChunks.join("\u0000"));
+		themeChunks.push(subChunks.join("\x00"));
 	}
 
 	// INSTALLED FONTS
@@ -188,11 +188,11 @@ export function deconstruct(data: UserData) {
 		subChunks.push(url.replace(noInvalidChars, ""));
 		if (enabled) subChunks.push("1");
 
-		installedFontChunks.push(subChunks.join("\u0000"));
+		installedFontChunks.push(subChunks.join("\x00"));
 	}
 
 	chunks.push(
-		pluginChunks.join("\x00"),
+		pluginChunks.join("\x01"),
 		themeChunks.join("\x01"),
 		installedFontChunks.join("\x01"),
 		customFontChunks.join("\x01"),
