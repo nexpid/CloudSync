@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { Cloudflare } from "../cloudflare";
-import { env } from "../env";
 import { compressData, decompressData } from "./conversion";
 
 export const UserDataSchema = z.object({
@@ -63,9 +62,9 @@ export async function sql<DataStructure>(
 ) {
 	return (
 		await new Cloudflare(
-			env.CLOUDFLARE_D1_BEARER_TOKEN,
-			env.CLOUDFLARE_ACCOUNT_ID,
-		).d1(env.CLOUDFLARE_D1_DATABASE_ID, { sql: query, params })
+			process.env.CLOUDFLARE_D1_BEARER_TOKEN,
+			process.env.CLOUDFLARE_ACCOUNT_ID,
+		).d1(process.env.CLOUDFLARE_D1_DATABASE_ID, { sql: query, params })
 	)[0].results[0] as DataStructure;
 }
 

@@ -1,27 +1,31 @@
 import { jwtVerify, SignJWT } from "jose";
-import { env } from "src/lib/env";
 
-interface User {
+interface TokenPayload {
 	userId: string;
 }
 
-function key() {
-	return new TextEncoder().encode(env.JWT_SECRET);
-}
+const alg = "HS256";
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export async function getUser(auth: string): Promise<User | null> {
-	if (!auth) return null;
+export async function getUser(token: string): Promise<TokenPayload | null> {
+	if (!token) return null;
+
 	try {
-		return (await jwtVerify<User>(auth, key())).payload;
+		const verified = await jwtVerify<TokenPayload>(token, secret, {
+			algorithms: [alg],
+		});
+		return verified.payload;
 	} catch {
 		return null;
 	}
 }
 
-export async function createToken(id: string): Promise<string> {
+export async function createToken(userId: string): Promise<string> {
 	return await new SignJWT({
-		userId: id,
+		userId,
 	})
-		.setProtectedHeader({ alg: "HS256" })
-		.sign(key());
+		.setProtectedHeader({ alg })
+		.setIssuedAt()
+		.setExpirationTime("1y")
+		.sign(secret);
 }

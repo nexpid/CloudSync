@@ -8,7 +8,6 @@ import {
 	RouteBases,
 	Routes,
 } from "discord-api-types/v10";
-import { env } from "src/lib/env";
 
 import { SillyService } from "./service";
 
@@ -21,7 +20,7 @@ const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://discord.gg/ddcQf3s2Uq »`;
 
 export async function runSilly() {
-	if (!env.CLIENT_TOKEN) return console.debug({ silly: { enabled: false } });
+	if (!process.env.CLIENT_TOKEN) return console.debug({ silly: { enabled: false } });
 
 	if (doingSilly) return console.warn({ silly: { busy: true } });
 
@@ -70,8 +69,8 @@ export async function runSilly() {
 	const fpte = SillyService.getFpte(colors.cloud, colors.bg);
 
 	// "Bot " is included in the token
-	const id = env.CLIENT_ID,
-		token = env.CLIENT_TOKEN;
+	const id = process.env.CLIENT_ID,
+		token = process.env.CLIENT_TOKEN;
 	const changedIconReq = await fetch(RouteBases.api + Routes.currentApplication(), {
 		method: "PATCH",
 		headers: {
