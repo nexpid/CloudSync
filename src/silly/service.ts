@@ -64,7 +64,7 @@ export class SillyService {
 	}
 
 	// https://github.com/Equicord/Equicord/blob/85faac8c3f8b6beea2d2a61134b65ddffa872fd5/src/plugins/fakeProfileThemes/index.tsx#L43-L53
-	static getFtpe(primary: string, accent: string) {
+	static getFpte(primary: string, accent: string) {
 		const message = `[${primary},${accent}]`;
 		const padding = "";
 		const encoded = Array.from(message)

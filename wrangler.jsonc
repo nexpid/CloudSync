@@ -1,0 +1,28 @@
+{
+    "name": "cloudsync",
+    "main": "src/index.ts",
+    "compatibility_flags": [
+        "nodejs_compat"
+    ],
+    "compatibility_date": "2025-08-24",
+    "vars": {
+        "ENVIRONMENT": "production"
+    },
+    "env": {
+        "local": {
+            "vars": {
+                "ENVIRONMENT": "local"
+            }
+        }
+    },
+    "triggers": {
+        "crons": [
+            // the silly system
+            "0 2 * * *"
+        ]
+    },
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+    }
+}

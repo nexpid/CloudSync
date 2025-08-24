@@ -3,7 +3,7 @@ CLOUDFLARE_D1_DATABASE_ID="...................................."
 CLOUDFLARE_D1_BEARER_TOKEN="..........................................."
 CLOUDFLARE_ACCOUNT_ID="..................................."
 
-# randomly generated secret
+# randomly generated secret -> bun test/jwt.ts
 JWT_SECRET="......................................................."
 
 # discord client oauth2 env variables

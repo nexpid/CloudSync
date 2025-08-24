@@ -17,8 +17,8 @@
 		"strictBindCallApply": false,
 		"forceConsistentCasingInFileNames": false,
 		"types": [
-			"node",
-			"worker-configuration.d.ts"
+			"./worker-configuration.d.ts",
+			"node"
 		]
 	}
 }

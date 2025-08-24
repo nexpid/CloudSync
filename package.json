@@ -1,16 +1,15 @@
 {
 	"name": "cloud-sync",
 	"scripts": {
-		"format": "dprint fmt \"src/**/*.ts\"",
-		"lint": "eslint \"src/**/*.ts\" --fix",
-		"ts": "ts-node -T",
 		"dev": "wrangler dev --env=local",
 		"deploy": "wrangler deploy --minify",
 		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
-		"runtime": "wrangler types --env-interface Env"
+		"format": "dprint fmt",
+		"lint": "eslint \"src/**/*.ts\" --fix",
+		"runtime": "wrangler types",
+		"typecheck": "bun run runtime && tsc"
 	},
 	"dependencies": {
-		"@resvg/resvg-wasm": "^2.6.2",
 		"discord-api-types": "^0.38.21",
 		"hono": "^4.9.4",
 		"jose": "^6.0.13",
@@ -24,10 +23,11 @@
 		"@typescript-eslint/parser": "^8.40.0",
 		"eslint": "^9.33.0",
 		"globals": "^16.3.0",
-		"prettier": "^3.6.2",
-		"ts-node": "^10.9.2",
 		"typescript": "^5.9.2",
 		"wrangler": "^4.32.0"
+	},
+	"optionalDependencies": {
+		"@resvg/resvg-wasm": "^2.6.2"
 	},
 	"packageManager": "bun@1.2.20"
 }

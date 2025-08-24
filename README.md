@@ -30,23 +30,48 @@
 ## Installation
 
 ```bash
-$ pnpm install
+# install without optional dependencies
+$ bun install --omit=optional
+
+# make .dev.vars
+$ cp .dev.vars.example .dev.vars
+
+# supply env variables
+$ vi .dev.vars
+
+# update secrets
+$ bunx wrangler secret bulk .dev.vars
 ```
 
 ## Running the app
 
-Fill in the `.dev.vars` file and upload the secrets to your Cloudflare worker for deployment
-
 ```bash
-# generate runtime.d.ts
-$ pnpm run runtime
-
 # development
-$ pnpm run dev
+$ bun run dev
 
 # deploy
-$ pnpm run deploy
+$ bun run deploy
 ```
+
+## Silly service
+
+A cron schedule that runs every day at **2:00 AM UTC** which gives the bot a randomized avatar, banner and even [FPTE](https://vencord.dev/plugins/FakeProfileThemes) color theme. This is disabled by default.\
+To enable:
+
+```bash
+# install optional dependencies
+$ bun install
+
+# add your bot's CLIENT_TOKEN to the env
+$ vi .dev.vars
+
+# update secrets
+$ bunx wrangler secret bulk .dev.vars
+```
+
+## Testing
+
+There aren't any real tests available at the moment. If you're feeling brave enough, feel free to write some!
 
 ## License
 

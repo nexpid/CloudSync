@@ -59,7 +59,7 @@ export async function runSilly() {
 				.render()
 				.asPng(),
 		).toString("base64");
-	const ftpe = SillyService.getFtpe(colors.cloud, colors.bg);
+	const fpte = SillyService.getFpte(colors.cloud, colors.bg);
 
 	// "Bot " is included in the token
 	const id = env.CLIENT_ID,
@@ -72,7 +72,7 @@ export async function runSilly() {
 		},
 		body: JSON.stringify({
 			icon: iconSvg,
-			description: `${description}${ftpe}`,
+			description: `${description}${fpte}`,
 		}),
 	});
 	const changedIcon = await changedIconReq.json<any>();
@@ -121,7 +121,7 @@ export async function runSilly() {
 					+ CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
 				icon: RouteBases.cdn
 					+ CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
-				ftpe,
+				fpte,
 				success: true,
 			},
 		});
