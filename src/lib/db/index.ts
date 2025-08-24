@@ -1,11 +1,12 @@
 import { z } from "zod";
+
 import { Cloudflare } from "../cloudflare";
 import { env } from "../env";
 import { compressData, decompressData } from "./conversion";
 
 export const UserDataSchema = z.object({
 	plugins: z.record(
-		z.string().url(),
+		z.url(),
 		z.object({
 			enabled: z.boolean(),
 			storage: z
@@ -22,14 +23,14 @@ export const UserDataSchema = z.object({
 		}),
 	),
 	themes: z.record(
-		z.string().url(),
+		z.url(),
 		z.object({
 			enabled: z.boolean(),
 		}),
 	),
 	fonts: z.object({
 		installed: z.record(
-			z.string().url(),
+			z.url(),
 			z.object({
 				enabled: z.boolean(),
 			}),
@@ -59,13 +60,13 @@ interface v1UserData {
 export async function sql<DataStructure>(
 	query: string,
 	params: string[],
-): Promise<DataStructure> {
+) {
 	return (
 		await new Cloudflare(
 			env.CLOUDFLARE_D1_BEARER_TOKEN,
 			env.CLOUDFLARE_ACCOUNT_ID,
 		).d1(env.CLOUDFLARE_D1_DATABASE_ID, { sql: query, params })
-	)[0].results[0] as any;
+	)[0].results[0] as DataStructure;
 }
 
 export async function saveUserData(
@@ -140,10 +141,10 @@ export async function retrieveUserData(
 			});
 
 			const at = new Date().toUTCString();
-			saveUserData(userId, newData, at);
+			void saveUserData(userId, newData, at);
 			return { data: newData, at };
 		} catch (e) {
-			throw new Error(`Failed to migrate your data to v2: ${e.message}`);
+			throw new Error(`Failed to migrate your data to v2: ${String(e)}`);
 		}
 	} else return { data: data.sync, at: data.at ?? new Date().toUTCString() };
 }

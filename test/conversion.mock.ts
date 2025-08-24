@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
+
 import { UserData } from "../src/lib/db";
 import { deconstruct, reconstruct } from "../src/lib/db/conversion";
 
@@ -77,7 +78,7 @@ const rawData = JSON.stringify(mockData);
 const str = deconstruct(mockData);
 const brotli = brotliCompressSync(str);
 
-const compare = (a: any, b: any) => {
+const compare = (a: string | Buffer, b: string | Buffer) => {
 	const siz = Buffer.byteLength(a);
 	const sizB = Buffer.byteLength(b);
 
@@ -107,9 +108,6 @@ try {
 	greatSuccess = false;
 }
 
-process.stdout.write(
-	`\nDid we pass the write → read check? ... `,
+console.log(
+	`\nDid we pass the write → read check? ... ${greatSuccess ? "yes!" : "no.."}`,
 );
-setTimeout(() => {
-	console.log(greatSuccess ? "yes!" : "no..");
-}, 1000);

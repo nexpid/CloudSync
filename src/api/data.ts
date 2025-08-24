@@ -10,6 +10,7 @@ import {
 } from "src/lib/db";
 import { decompressData } from "src/lib/db/conversion";
 import { HttpStatus } from "src/lib/http-status";
+import { prettifyError } from "zod";
 
 const data = new Hono<{ Bindings: Env }>();
 
@@ -23,7 +24,7 @@ data.get("/", async function getData(c) {
 		c.header("Last-Modified", data?.at);
 		return c.json(data?.data || null);
 	} catch (e) {
-		return c.text(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -32,7 +33,7 @@ data.put(
 	validator("json", (value, c) => {
 		const parsed = UserDataSchema.safeParse(value);
 		if (parsed.error) {
-			return c.text(parsed.error.toString(), HttpStatus.BAD_REQUEST);
+			return c.text(prettifyError(parsed.error), HttpStatus.BAD_REQUEST);
 		}
 
 		return parsed.data;
@@ -47,7 +48,7 @@ data.put(
 			await saveUserData(user.userId, data, new Date().toUTCString());
 			return c.json(true);
 		} catch (e) {
-			return c.text(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	},
 );
@@ -60,7 +61,7 @@ data.delete("/", async function deleteData(c) {
 		await deleteUserData(user.userId);
 		return c.json(true);
 	} catch (e) {
-		return c.text(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -89,7 +90,7 @@ data.get("/raw", async function downloadData(c) {
 		c.header("last-modified", data.at);
 		return c.text(data.data);
 	} catch (e) {
-		return c.text(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -103,7 +104,7 @@ data.post("/decompress", async function decompressRawData(c) {
 		Buffer.from(rawData, "base64"); // make sure data is base64
 		return c.json(await decompressData(rawData));
 	} catch (e) {
-		return c.text(e.toString(), HttpStatus.BAD_REQUEST);
+		return c.text(String(e), HttpStatus.BAD_REQUEST);
 	}
 });
 

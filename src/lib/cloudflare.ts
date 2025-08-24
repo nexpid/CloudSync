@@ -6,6 +6,39 @@ class CloudflareError extends Error {
 	}
 }
 
+interface APIResult {
+	meta: {
+		served_by: string;
+		duration: number;
+		changes: number;
+		last_row_id: number;
+		changed_db: boolean;
+		size_after: number;
+		rows_read: number;
+		rows_written: number;
+	};
+	results: unknown[];
+	success: boolean;
+}
+
+interface APIResponseOk {
+	success: true;
+	result: APIResult[];
+}
+interface APIResponseErr {
+	success: false;
+	errors: {
+		code: number;
+		message: string;
+	}[];
+}
+type APIResponse = APIResponseOk | APIResponseErr;
+
+// this is kinda jank but it's the only thing that works lol
+function isAPIResponseErr(res: APIResponse): res is APIResponseErr {
+	return !res.success || "errors" in res;
+}
+
 export class Cloudflare {
 	constructor(
 		private bearerToken: string,
@@ -16,20 +49,7 @@ export class Cloudflare {
 		databaseId: string,
 		params: { sql: string; params?: string[] },
 	): Promise<
-		{
-			meta: {
-				served_by: string;
-				duration: number;
-				changes: number;
-				last_row_id: number;
-				changed_db: boolean;
-				size_after: number;
-				rows_read: number;
-				rows_written: number;
-			};
-			results: any[];
-			success: boolean;
-		}[]
+		APIResult[]
 	> {
 		const res = await (
 			await fetch(
@@ -43,12 +63,12 @@ export class Cloudflare {
 					},
 				},
 			)
-		).json<any>();
+		).json<APIResponse>();
 
-		if (!res.success || !res.result) {
+		if (isAPIResponseErr(res)) {
 			throw new CloudflareError(
 				res.errors[0]
-					? res.errors.map((x: any) => `[${x.code}] ${x.message}`).join(", ")
+					? res.errors.map((x) => `[${x.code}] ${x.message}`).join(", ")
 					: "Unknown error",
 			);
 		} else return res.result;

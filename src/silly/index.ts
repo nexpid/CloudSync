@@ -1,7 +1,15 @@
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
-import { CDNRoutes, ImageFormat, RouteBases, Routes } from "discord-api-types/v10";
+import {
+	CDNRoutes,
+	ImageFormat,
+	RESTPatchAPICurrentUserResult,
+	RESTPatchCurrentApplicationResult,
+	RouteBases,
+	Routes,
+} from "discord-api-types/v10";
 import { env } from "src/lib/env";
+
 import { SillyService } from "./service";
 
 let initiated = false,
@@ -22,8 +30,8 @@ export async function runSilly() {
 		try {
 			await initWasm(resvgWasm);
 			initiated = true;
-		} catch (error) {
-			console.error({ silly: { resvg: false, error } });
+		} catch (e) {
+			console.error({ silly: { resvg: false, error: String(e) } });
 			return (doingSilly = false);
 		}
 	}
@@ -64,7 +72,7 @@ export async function runSilly() {
 	// "Bot " is included in the token
 	const id = env.CLIENT_ID,
 		token = env.CLIENT_TOKEN;
-	const changedIconReq = await fetch(RouteBases.api + `/applications/${id}`, {
+	const changedIconReq = await fetch(RouteBases.api + Routes.currentApplication(), {
 		method: "PATCH",
 		headers: {
 			"content-type": "application/json",
@@ -75,7 +83,7 @@ export async function runSilly() {
 			description: `${description}${fpte}`,
 		}),
 	});
-	const changedIcon = await changedIconReq.json<any>();
+	const changedIcon = await changedIconReq.json<RESTPatchCurrentApplicationResult>();
 
 	const changedBannerReq = await fetch(RouteBases.api + Routes.user(), {
 		method: "PATCH",
@@ -87,7 +95,7 @@ export async function runSilly() {
 			banner: bannerSvg,
 		}),
 	});
-	const changedBanner = await changedBannerReq.json<any>();
+	const changedBanner = await changedBannerReq.json<RESTPatchAPICurrentUserResult>();
 
 	doingSilly = false;
 

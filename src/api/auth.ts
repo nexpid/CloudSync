@@ -17,7 +17,7 @@ auth.get("/authorize", async function authorize(c) {
 	}
 
 	const response = await fetch(
-		`${RouteBases.api}${Routes.oauth2TokenExchange()}`,
+		RouteBases.api + Routes.oauth2TokenExchange(),
 		{
 			method: "POST",
 			headers: {
@@ -44,9 +44,10 @@ auth.get("/authorize", async function authorize(c) {
 	}
 
 	try {
-		const accessToken:
-			| RESTPostOAuth2AccessTokenResult
-			| { error: string; error_description?: string } = JSON.parse(text);
+		const accessToken = JSON.parse(text) as RESTPostOAuth2AccessTokenResult | {
+			error: string;
+			error_description?: string;
+		};
 		if (!("access_token" in accessToken)) {
 			return c.text(
 				`Invalid OAuth2 code response (${
@@ -56,17 +57,17 @@ auth.get("/authorize", async function authorize(c) {
 			);
 		}
 
-		const { id } = (await (
-			await fetch(`${RouteBases.api}${Routes.user("@me")}`, {
+		const { id } = await (
+			await fetch(RouteBases.api + Routes.user(), {
 				headers: {
 					authorization: `${accessToken.token_type} ${accessToken.access_token}`,
 				},
 			})
-		).json()) as RESTGetAPICurrentUserResult;
+		).json<RESTGetAPICurrentUserResult>();
 
 		return c.text(await createToken(id));
 	} catch (e) {
-		return c.text(`Invalid OAuth2 API response: ${response}`, HttpStatus.BAD_REQUEST);
+		return c.text(`Invalid OAuth2 API response: ${e}`, HttpStatus.BAD_REQUEST);
 	}
 });
 

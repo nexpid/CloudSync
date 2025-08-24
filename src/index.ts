@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+
 import api from "./api";
 import { assignEnv } from "./lib/env";
 import { runSilly } from "./silly";
@@ -16,7 +17,7 @@ app.route("/api", api);
 
 export default {
 	fetch: app.fetch,
-	async scheduled(
+	scheduled(
 		controller: ScheduledController,
 		env: Env,
 		ctx: ExecutionContext,

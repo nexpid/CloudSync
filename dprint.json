@@ -1,11 +1,16 @@
 {
 	"useTabs": true,
 	"lineWidth": 100,
+	"typescript": {
+		"module.sortImportDeclarations": "maintain",
+		"module.sortExportDeclarations": "maintain"
+	},
 	"excludes": [
 		"**/node_modules",
+		"**/.wrangler",
 		"**/bundled",
 		"**/dist",
-		"**/.wrangler",
+		"**/worker-configuration.d.ts",
 		"**/*-lock.json"
 	],
 	"plugins": [

@@ -3,25 +3,39 @@ import {
 	brotliCompress as _brotliCompress,
 	brotliDecompress as _brotliDecompress,
 } from "node:zlib";
+
 import { UserData, UserDataSchema } from ".";
 
 const brotliCompress = promisify(_brotliCompress);
 const brotliDecompress = promisify(_brotliDecompress);
 
-const noInvalidChars = /[\n\u0000\u0001]/g;
+const noInvalidChars = /[\n\x00\x01]/g;
 
-const stripNoCloudSync = (obj: any) => {
+function stripNoCloudSync(obj: unknown) {
 	if (obj && typeof obj === "object") {
-		if ("__no_cloud_sync" in obj) return undefined;
+		if (Array.isArray(obj)) {
+			const filtered = [];
+			for (const val of obj) {
+				const rep = stripNoCloudSync(val);
+				if (rep !== undefined) filtered.push(rep);
+			}
 
-		for (const key of Object.keys(obj)) {
-			const val = stripNoCloudSync(obj[key]);
-			if (val === undefined) delete obj[key];
-			else obj[key] = val;
+			return filtered as unknown[];
+		} else {
+			// deprecated
+			if ("__no_cloud_sync" in obj) return undefined;
+			if ("__no_sync" in obj) return undefined;
+
+			const filtered = {};
+			for (const [key, value] of Object.entries(obj)) {
+				const rep = stripNoCloudSync(value);
+				if (rep !== undefined) filtered[key] = rep;
+			}
+
+			return filtered;
 		}
-	}
-	return obj;
-};
+	} else return obj;
+}
 
 export function reconstruct(data: string) {
 	const [version, plugins, themes, installedFonts, customFonts, ...incorrect] = data
@@ -37,8 +51,8 @@ export function reconstruct(data: string) {
 		},
 	};
 
-	for (const plugin of plugins.split("\u0001")) {
-		const stuff = plugin.split("\u0000");
+	for (const plugin of plugins.split("\x01")) {
+		const stuff = plugin.split("\x00");
 		const url = stuff[0];
 		if (!url) continue;
 		let [enabled, storage] = stuff.slice(1);
@@ -56,7 +70,7 @@ export function reconstruct(data: string) {
 		}
 
 		dataObj.plugins[url] = {
-			enabled: enabled === "1",
+			enabled: Boolean(enabled),
 			storage,
 		};
 	}
@@ -65,9 +79,9 @@ export function reconstruct(data: string) {
 		const [spec, src, enabled] = font.split("\u0000");
 		if (Number.isNaN(Number(spec)) || !src) continue;
 
-		let dt: any;
+		let raw: object;
 		try {
-			dt = JSON.parse(src);
+			raw = JSON.parse(src) as object;
 		} catch {
 			continue;
 		}
@@ -75,7 +89,7 @@ export function reconstruct(data: string) {
 		dataObj.fonts.custom.push({
 			spec: Number(spec),
 			enabled: enabled === "1",
-			...dt,
+			...raw,
 		});
 	}
 
@@ -148,7 +162,7 @@ export function deconstruct(data: UserData) {
 		delete fontData.enabled;
 		delete fontData.spec;
 
-		subChunks.push(font.spec.toString());
+		subChunks.push(String(font.spec));
 		subChunks.push(JSON.stringify(fontData));
 		if (font.enabled) subChunks.push("1");
 
@@ -178,10 +192,10 @@ export function deconstruct(data: UserData) {
 	}
 
 	chunks.push(
-		pluginChunks.join("\u0001"),
-		themeChunks.join("\u0001"),
-		installedFontChunks.join("\u0001"),
-		customFontChunks.join("\u0001"),
+		pluginChunks.join("\x00"),
+		themeChunks.join("\x01"),
+		installedFontChunks.join("\x01"),
+		customFontChunks.join("\x01"),
 	);
 
 	return chunks.join("\n");
