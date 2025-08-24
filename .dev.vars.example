@@ -1,9 +1,4 @@
-# cloudflare D1 database env variables
-CLOUDFLARE_D1_DATABASE_ID="...................................."
-CLOUDFLARE_D1_BEARER_TOKEN="..........................................."
-CLOUDFLARE_ACCOUNT_ID="..................................."
-
-# randomly generated secret -> bun test/src/jwt.ts
+# randomly generated secret -> bun run test/src/jwt.ts
 JWT_SECRET="................................................................................................................................"
 
 # discord client oauth2 env variables

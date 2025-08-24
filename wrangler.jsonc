@@ -5,24 +5,40 @@
 		"nodejs_compat",
 	],
 	"compatibility_date": "2025-08-24",
-	"triggers": {
-		"crons": [
-			// the silly system
-			"0 2 * * *",
-		],
-	},
-	"observability": {
-		"enabled": true,
-		"head_sampling_rate": 1,
-	},
 	"vars": {
 		"ENVIRONMENT": "production",
 	},
+	"d1_databases": [
+		// Production database
+		{
+			"binding": "DB",
+			"database_name": "VendettaCloudSync",
+			"database_id": "a645225f-1c58-41ff-ba7e-61d50490837e",
+		},
+	],
 	"env": {
 		"local": {
 			"vars": {
 				"ENVIRONMENT": "local",
 			},
+			"d1_databases": [
+				// Staging database
+				{
+					"binding": "DB",
+					"database_name": "VendettaCloudSync",
+					"database_id": "a645225f-1c58-41ff-ba7e-61d50490837e",
+				},
+			],
 		},
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1,
+	},
+	"triggers": {
+		"crons": [
+			// the silly system
+			"0 2 * * *",
+		],
 	},
 }

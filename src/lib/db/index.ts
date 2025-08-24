@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { Cloudflare } from "../cloudflare";
 import { compressData, decompressData } from "./conversion";
 
 export const UserDataSchema = z.object({
@@ -56,16 +55,16 @@ interface v1UserData {
 	}[];
 }
 
-export async function sql<DataStructure>(
+let env: Env;
+export function assignEnv(_env: Env) {
+	env = _env;
+}
+
+export function sql(
 	query: string,
 	params: string[],
 ) {
-	return (
-		await new Cloudflare(
-			process.env.CLOUDFLARE_D1_BEARER_TOKEN,
-			process.env.CLOUDFLARE_ACCOUNT_ID,
-		).d1(process.env.CLOUDFLARE_D1_DATABASE_ID, { sql: query, params })
-	)[0].results[0] as DataStructure;
+	return env.DB.prepare(query).bind(...params);
 }
 
 export async function saveUserData(
@@ -73,7 +72,7 @@ export async function saveUserData(
 	data: string | UserData,
 	at: string,
 ) {
-	await sql(
+	return await sql(
 		"insert or replace into data (user, version, sync, at) values (?, ?, ?, ?)",
 		[
 			userId,
@@ -81,11 +80,11 @@ export async function saveUserData(
 			typeof data === "string" ? data : await compressData(data),
 			at,
 		],
-	);
+	).run();
 }
 
 export async function deleteUserData(userId: string) {
-	await sql("delete from data where user = ?", [userId]);
+	return await sql("delete from data where user = ?", [userId]).run();
 }
 
 export async function getUserData(userId: string): Promise<ApiUserData> {
@@ -107,14 +106,14 @@ export async function getUserData(userId: string): Promise<ApiUserData> {
 export async function retrieveUserData(
 	userId: string,
 ): Promise<{ data: string; at: string } | null> {
-	const data = await sql<
+	const data = await sql("select * from data where user = ?", [userId]).first<
 		{
 			user: string;
 			version: number;
 			sync: string;
 			at: string | null;
-		} | null
-	>("select * from data where user = ?", [userId]);
+		}
+	>();
 	if (!data) return null;
 
 	if (data.version === 1) {
@@ -139,11 +138,11 @@ export async function retrieveUserData(
 				},
 			});
 
-			const at = new Date().toUTCString();
+			const at = new Date().toISOString();
 			void saveUserData(userId, newData, at);
 			return { data: newData, at };
 		} catch (e) {
 			throw new Error(`Failed to migrate your data to v2: ${String(e)}`);
 		}
-	} else return { data: data.sync, at: data.at ?? new Date().toUTCString() };
+	} else return { data: data.sync, at: data.at ?? new Date().toISOString() };
 }
