@@ -45,7 +45,7 @@ data.put(
 		if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
 
 		try {
-			await saveUserData(user.userId, data, new Date().toUTCString());
+			await saveUserData(user.userId, data, new Date().toISOString());
 			return c.json(true);
 		} catch (e) {
 			return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);

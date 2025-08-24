@@ -5,16 +5,6 @@
 		"nodejs_compat",
 	],
 	"compatibility_date": "2025-08-24",
-	"vars": {
-		"ENVIRONMENT": "production",
-	},
-	"env": {
-		"local": {
-			"vars": {
-				"ENVIRONMENT": "local",
-			},
-		},
-	},
 	"triggers": {
 		"crons": [
 			// the silly system
@@ -24,5 +14,15 @@
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,
+	},
+	"vars": {
+		"ENVIRONMENT": "production",
+	},
+	"env": {
+		"local": {
+			"vars": {
+				"ENVIRONMENT": "local",
+			},
+		},
 	},
 }
