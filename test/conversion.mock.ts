@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { exists, mkdir, rm } from "node:fs/promises";
 import { brotliCompressSync, brotliDecompressSync } from "node:zlib";
 
-import { UserData } from "../src/lib/db";
+import type { UserData } from "../src/lib/db";
 import { deconstruct, reconstruct } from "../src/lib/db/conversion";
 
 const basePluginRoot = "https://bn-plugins.github.io/vd-proxy/user.github.io/plugins/";
@@ -86,28 +86,36 @@ const compare = (a: string | Buffer, b: string | Buffer) => {
 	return `${byteSizer(siz)} (${change > 0 ? "+" : ""}${change}%)`;
 };
 
-console.log("Old data size:", byteSizer(Buffer.byteLength(rawData)));
-console.log("New data size:", compare(str, rawData));
-console.log("New brotli compressed data size:", compare(brotli, str));
+console.log("Raw data size:", byteSizer(Buffer.byteLength(rawData)));
+console.log("Basic compressed data size:", compare(str, rawData));
+
+console.log();
+
+console.log("Brotli compressed data size:", compare(brotli, str));
 console.log(
-	"New base64'd brotli compressed data size:",
-	compare(brotli.toString("base64"), brotli),
+	"Base64 brotli compressed data size:",
+	compare(brotli.toString("base64"), str),
 );
 
-if (!existsSync("test/mock")) mkdirSync("test/mock");
-writeFileSync("test/mock/raw-data.json", rawData);
-writeFileSync("test/mock/data.txt", str);
-writeFileSync("test/mock/compressed-data.txt", brotli);
+console.log();
+
+if (await exists("test/mock")) await rm("test/mock", { recursive: true, force: true });
+await mkdir("test/mock");
+await Bun.write("test/mock/raw-data.json", rawData);
+await Bun.write("test/mock/basic-compressed-data.txt", str);
+await Bun.write("test/mock/brotli-compressed-data.txt", brotli.toString("base64"));
 
 let greatSuccess = true;
 try {
 	reconstruct(
-		brotliDecompressSync(readFileSync("test/mock/compressed-data.txt")).toString(),
+		brotliDecompressSync(
+			Buffer.from(await Bun.file("test/mock/brotli-compressed-data.txt").text(), "base64"),
+		).toString(),
 	);
 } catch {
 	greatSuccess = false;
 }
 
 console.log(
-	`\nDid we pass the write → read check? ... ${greatSuccess ? "yes!" : "no.."}`,
+	`Did we pass the brotli write → read check? ... ${greatSuccess ? "yes!" : "no.."}`,
 );

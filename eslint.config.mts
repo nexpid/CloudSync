@@ -22,6 +22,15 @@ export default defineConfig([
 			globals: globals.worker,
 		},
 	},
+	{
+		files: ["test/**/*.*"],
+		languageOptions: {
+			globals: {
+				...globals.node,
+				Bun: false,
+			},
+		},
+	},
 	tseslint.configs.recommendedTypeChecked,
 	{
 		languageOptions: {

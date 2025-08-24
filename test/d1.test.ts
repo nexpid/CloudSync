@@ -1,12 +1,8 @@
 // Tests a random D1 query
 
-import { readFileSync } from "node:fs";
-
 import { Cloudflare } from "../src/lib/cloudflare";
 
-const { dbId, bearerToken, accountId } = JSON.parse(
-	readFileSync("test/creds.json", "utf8"),
-) as {
+const { dbId, bearerToken, accountId } = await Bun.file("test/creds.json").json() as {
 	dbId: string;
 	bearerToken: string;
 	accountId: string;
@@ -14,8 +10,8 @@ const { dbId, bearerToken, accountId } = JSON.parse(
 
 const cf = new Cloudflare(bearerToken, accountId);
 
-void cf.d1(dbId, {
+await cf.d1(dbId, {
 	sql: "select * from data where user = ?",
 	params: ["000000000000000000"],
 })
-	.then((x) => console.log(x[0].results[0]));
+	.then((x) => console.log(x[0]?.results[0]));
