@@ -3,7 +3,7 @@
 	"scripts": {
 		"dev": "wrangler dev --env local",
 		"deploy": "wrangler deploy --minify",
-		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run --env",
+		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run --env=",
 		"runtime": "wrangler types",
 		"format": "dprint fmt",
 		"lint": "eslint --fix",
