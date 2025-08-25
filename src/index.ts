@@ -20,8 +20,8 @@ app.use(async (c, next) => {
 	await next();
 });
 
-// Error handling
-app.use(async function errorHandler(c, next) {
+// Error response handling
+app.use(async function errorResponseHandler(c, next) {
 	await next();
 	if (!c.res) return;
 

@@ -54,7 +54,7 @@ data.get("/", async function getData(c) {
 		return c.json(data?.data || null);
 	} catch (error) {
 		logger.error("Uncaught data get err", { userId, error });
-		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -76,7 +76,7 @@ data.put(
 			return c.json(true);
 		} catch (error) {
 			logger.error("Uncaught data put err", { userId, error });
-			return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+			return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	},
 );
@@ -89,7 +89,7 @@ data.delete("/", async function deleteData(c) {
 		return c.json(true);
 	} catch (error) {
 		logger.error("Uncaught data delete err", { userId, error });
-		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -111,7 +111,7 @@ data.get("/raw", async function downloadData(c) {
 		return c.text(data.data);
 	} catch (error) {
 		logger.error("Uncaught data raw err", { userId, error });
-		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 

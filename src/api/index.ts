@@ -23,7 +23,7 @@ api.get("/bench/:test", async function bench(c) {
 			const error = new Error("The server is dead");
 
 			logger.error("The server got a real and scary error!!!", { userId, error });
-			return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+			return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		case "will-timeout": {
 			// Wait for 20s (worker limit is 10s)

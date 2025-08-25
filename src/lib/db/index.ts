@@ -93,7 +93,7 @@ export async function getUserData(userId: string): Promise<ApiUserData> {
 	if (!data) {
 		return {
 			data: { plugins: {}, themes: {}, fonts: { installed: {}, custom: [] } },
-			at: null,
+			at: new Date().toISOString(),
 		};
 	}
 

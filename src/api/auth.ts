@@ -10,12 +10,17 @@ import { HttpStatus } from "src/lib/http-status";
 
 import { logger } from "../lib/logger";
 
+type APIAccessTokenResult = RESTPostOAuth2AccessTokenResult | {
+	error: string;
+	error_description?: string;
+};
+
 const auth = new Hono<{ Bindings: Env }>();
 
 auth.get("/authorize", async function authorize(c) {
 	const code = c.req.query("code");
-	if (!code || code.length !== 30 || !code.match(/^[a-z0-9]+$/i)) {
-		return c.text("Missing 'code'", HttpStatus.BAD_REQUEST);
+	if (!code || !/^[a-z0-9]{30}$/i.test(code)) {
+		return c.text("Missing or invalid \"code\"", HttpStatus.BAD_REQUEST);
 	}
 
 	const response = await fetch(
@@ -40,48 +45,37 @@ auth.get("/authorize", async function authorize(c) {
 
 	const text = await response.text();
 	if (!response.ok && text.includes("error code: 1015")) {
-		return c.text("Ratelimited, please try again later!", HttpStatus.TOO_MANY_REQUESTS);
+		return c.text("Discord ratelimited, please try again later!", HttpStatus.TOO_MANY_REQUESTS);
 	}
 
+	let token: string;
 	try {
-		let token: string;
-		try {
-			const accessToken = JSON.parse(text) as RESTPostOAuth2AccessTokenResult | {
-				error: string;
-				error_description?: string;
-			};
-			if (!("access_token" in accessToken)) {
-				return c.text(
-					`Invalid OAuth2 code: [${accessToken.error}] ${accessToken.error_description}`,
-					HttpStatus.BAD_REQUEST,
-				);
-			}
-
-			token = `${accessToken.token_type} ${accessToken.access_token}`;
-		} catch (error) {
-			logger.error("Uncaught auth code response err", {
-				response: text,
-				error,
-			});
-			return c.text(`Invalid OAuth2 code response: ${text}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		const accessToken = JSON.parse(text) as APIAccessTokenResult;
+		if (!("access_token" in accessToken)) {
+			return c.text(
+				`Invalid OAuth2 code: [${accessToken.error}] ${accessToken.error_description}`,
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 
-		const { id } = await (
-			await fetch(RouteBases.api + Routes.user(), {
-				headers: {
-					authorization: token,
-				},
-			})
-		).json<RESTGetAPICurrentUserResult>();
-
-		return c.text(await createToken(id));
+		token = `${accessToken.token_type} ${accessToken.access_token}`;
 	} catch (error) {
-		logger.error("Uncaught auth err", {
+		logger.error("Uncaught auth code response err", {
 			response: text,
 			error,
 		});
-		return c.text(`Invalid OAuth2 API response: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		return c.text(`Invalid OAuth2 code response: ${text}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+
+	const { id } = await (
+		await fetch(RouteBases.api + Routes.user(), {
+			headers: {
+				authorization: token,
+			},
+		})
+	).json<RESTGetAPICurrentUserResult>();
+
+	return c.text(await createToken(id));
 });
 
 export default auth;
