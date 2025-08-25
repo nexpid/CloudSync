@@ -2,7 +2,7 @@
 	"name": "cloud-sync",
 	"scripts": {
 		"dev": "wrangler dev --env local",
-		"deploy": "wrangler deploy --minify",
+		"deploy": "wrangler deploy --minify --env=",
 		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run --env=",
 		"runtime": "wrangler types",
 		"format": "dprint fmt",
