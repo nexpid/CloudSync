@@ -1,9 +1,9 @@
 {
 	"name": "cloud-sync",
 	"scripts": {
-		"dev": "wrangler dev --env local",
-		"deploy": "wrangler deploy --minify --env=",
-		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run --env=",
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy --minify --define IS_PRODUCTION:true",
+		"dry-deploy": "bun run deploy --dry-run --outdir=./bundled",
 		"runtime": "wrangler types",
 		"format": "dprint fmt",
 		"lint": "eslint --fix",
@@ -46,12 +46,7 @@
 				"description": "The Discord OAuth2 application secret"
 			},
 			"REDIRECT_URI": {
-				"description": "The Discord OAuth2 application redirect URI",
-				"default": "https://your-worker.workers.dev/api/auth/authorize"
-			},
-			"LOCAL_REDIRECT_URI": {
-				"description": "A local Discord OAuth2 application redirect URI, used for development",
-				"default": "http://127.0.0.1:8787/api/auth/authorize"
+				"description": "The Discord OAuth2 application redirect URI"
 			},
 			"CLIENT_TOKEN": {
 				"description": "(Optional) A Discord bot token (prefixed with Bot token type), used for the Silly service"

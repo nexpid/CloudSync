@@ -1,7 +1,7 @@
 import { formatWithOptions } from "node:util";
 
 export function table(obj: object) {
-	return process.env.ENVIRONMENT === "local"
+	return !IS_PRODUCTION
 		? formatWithOptions({
 			depth: Infinity,
 			colors: true,

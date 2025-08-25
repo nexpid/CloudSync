@@ -21,8 +21,8 @@ Cloud Sync uses an SQL [D1 database](https://developers.cloudflare.com/d1/) with
 4. Initialize the database both locally (miniflare) and on the real database
 
    ```bash
-   $ bunx wrangler d1 execute DB --local --file ./schema.sql --env=
-   $ bunx wrangler d1 execute DB --remote --yes --file ./schema.sql --env=
+   $ bunx wrangler d1 execute DB --local --file ./schema.sql
+   $ bunx wrangler d1 execute DB --remote --yes --file ./schema.sql
    ```
 
 5. You're done!

@@ -5,9 +5,18 @@
 		"nodejs_compat",
 	],
 	"compatibility_date": "2025-08-24",
-	"vars": {
-		"ENVIRONMENT": "production",
-	},
+	"rules": [
+		{
+			"type": "CompiledWasm",
+			"globs": ["**/*.wasm"],
+			"fallthrough": true,
+		},
+		{
+			"type": "Text",
+			"globs": ["**/*.svg"],
+			"fallthrough": true,
+		},
+	],
 	"unsafe": {
 		"bindings": [
 			// Ratelimit of max 20 requests/10s per user (production)
@@ -23,52 +32,10 @@
 		],
 	},
 	"d1_databases": [
-		// Production database
 		{
 			"binding": "DB",
 			"database_name": "VendettaCloudSync",
 			"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
-		},
-	],
-	"env": {
-		"local": {
-			"vars": {
-				"ENVIRONMENT": "local",
-			},
-			"unsafe": {
-				"bindings": [
-					// Ratelimit of max 100 requests/10s per user (staging)
-					{
-						"name": "USER_RATELIMIT",
-						"type": "ratelimit",
-						"namespace_id": "1001",
-						"simple": {
-							"limit": 100,
-							"period": 10,
-						},
-					},
-				],
-			},
-			"d1_databases": [
-				// Staging database (same as production, a local db is used anyway)
-				{
-					"binding": "DB",
-					"database_name": "VendettaCloudSync",
-					"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
-				},
-			],
-		},
-	},
-	"rules": [
-		{
-			"type": "CompiledWasm",
-			"globs": ["**/*.wasm"],
-			"fallthrough": true,
-		},
-		{
-			"type": "Text",
-			"globs": ["**/*.svg"],
-			"fallthrough": true,
 		},
 	],
 	"observability": {
