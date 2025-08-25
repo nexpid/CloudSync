@@ -9,3 +9,4 @@ LOCAL_REDIRECT_URI="http://localhost:8787/api/auth/authorize"
 
 # optional and only used for Silly service
 CLIENT_TOKEN="Bot ...................................................."
+ADMIN_USER_ID=".................."

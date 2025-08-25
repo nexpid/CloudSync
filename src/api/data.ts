@@ -45,11 +45,18 @@ data.use(cloudflareRateLimiter<HonoConfig>({
 }));
 
 data.get("/", async function getData(c) {
-	if (c.req.query("will-error")) {
-		return c.text("The server is dead", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
 	const userId = c.get("user").userId;
+
+	// Testing in production (lol)
+	if ("ADMIN_USER_ID" in process.env && userId == process.env.ADMIN_USER_ID) {
+		if (c.req.query("will-error")) {
+			return c.text("The client is dead", HttpStatus.BAD_REQUEST);
+		} else if (c.req.query("will-crash")) {
+			const error = new Error("The server is dead");
+			logger.error("The server got a real and scary error!!!", { userId, error });
+			return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	try {
 		const data = await getUserData(userId);
