@@ -40,6 +40,15 @@ app.use(async function errorResponseHandler(c, next) {
 	}
 });
 
+// Error handling
+app.onError(function errorHandler(error, c) {
+	logger.error("Uncaught error", {
+		userId: c.get("user")?.userId ?? null,
+		error,
+	});
+	return c.text(`Unknown error occurred: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+});
+
 app.get("/", (c) => c.redirect("https://github.com/nexpid/CloudSync", 301));
 
 app.route("/api", api);

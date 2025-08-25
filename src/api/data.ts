@@ -47,15 +47,9 @@ data.use(cloudflareRateLimiter<HonoConfig>({
 data.get("/", async function getData(c) {
 	const userId = c.get("user").userId;
 
-	try {
-		const data = await getUserData(userId);
-
-		c.header("Last-Modified", data?.at);
-		return c.json(data?.data || null);
-	} catch (error) {
-		logger.error("Uncaught data get err", { userId, error });
-		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+	const data = await getUserData(userId);
+	c.header("Last-Modified", data.at);
+	return c.json(data?.data || null);
 });
 
 data.put(
@@ -69,54 +63,41 @@ data.put(
 		return parsed.data;
 	}),
 	async function saveData(c) {
-		const userId = c.get("user").userId, data = c.req.valid("json");
+		const userId = c.get("user").userId;
+		const data = c.req.valid("json");
 
-		try {
-			await saveUserData(userId, data, new Date().toISOString());
-			return c.json(true);
-		} catch (error) {
-			logger.error("Uncaught data put err", { userId, error });
-			return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		await saveUserData(userId, data, new Date().toISOString());
+		return c.json(true);
 	},
 );
 
 data.delete("/", async function deleteData(c) {
 	const userId = c.get("user").userId;
 
-	try {
-		await deleteUserData(userId);
-		return c.json(true);
-	} catch (error) {
-		logger.error("Uncaught data delete err", { userId, error });
-		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+	await deleteUserData(userId);
+	return c.json(true);
 });
 
 data.get("/raw", async function downloadData(c) {
 	const userId = c.get("user").userId;
 
-	try {
-		const data = await retrieveUserData(userId);
-		if (!data) return c.body(null, HttpStatus.NO_CONTENT);
+	const data = await retrieveUserData(userId);
+	if (!data) return c.body(null, HttpStatus.NO_CONTENT);
 
-		const today = new Date().toISOString().replace(/T/, "_").replace(/:/g, "").replace(/\..+$/, "");
+	const today = new Date().toISOString().replace(/T/, "_").replace(/:/g, "").replace(/\..+$/, "");
 
-		c.header("content-type", "text/plain");
-		c.header(
-			"content-disposition",
-			`attachment; filename="CloudSync-${today}.txt"`,
-		);
-		c.header("last-modified", data.at);
-		return c.text(data.data);
-	} catch (error) {
-		logger.error("Uncaught data raw err", { userId, error });
-		return c.text(`Unknown error occurred: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+	c.header("Content-Type", "text/plain");
+	c.header(
+		"Content-Disposition",
+		`attachment; filename="CloudSync-${today}.txt"`,
+	);
+	c.header("Last-Modified", data.at);
+	return c.text(data.data);
 });
 
 data.post("/decompress", async function decompressRawData(c) {
-	const userId = c.get("user").userId, rawData = await c.req.text();
+	const userId = c.get("user").userId;
+	const rawData = await c.req.text();
 
 	try {
 		Buffer.from(rawData, "base64"); // make sure data is base64

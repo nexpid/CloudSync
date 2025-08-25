@@ -70,7 +70,7 @@ auth.get("/authorize", async function authorize(c) {
 	const { id } = await (
 		await fetch(RouteBases.api + Routes.user(), {
 			headers: {
-				authorization: token,
+				Authorization: token,
 			},
 		})
 	).json<RESTGetAPICurrentUserResult>();
