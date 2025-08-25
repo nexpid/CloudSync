@@ -1,6 +1,7 @@
+import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import { getUser } from "src/lib/auth";
+import { getUser, TokenPayload } from "src/lib/auth";
 import {
 	deleteUserData,
 	getUserData,
@@ -12,11 +13,37 @@ import { decompressData } from "src/lib/db/conversion";
 import { HttpStatus } from "src/lib/http-status";
 import { prettifyError } from "zod";
 
-const data = new Hono<{ Bindings: Env }>();
+interface HonoConfig {
+	Variables: {
+		user: TokenPayload;
+	};
+	Bindings: Env;
+}
+
+const data = new Hono<HonoConfig>();
+
+// Authorization middleware
+data.use(async (c, next) => {
+	// Used as a bypass for iOs users on /raw, since RNFS is missing so the file can't be downloaded with code
+	const user = await getUser(c.req.header("Authorization") ?? c.req.query("auth"));
+	if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+
+	c.set("user", user);
+	await next();
+});
+
+// Ratelimit middleware
+data.use(cloudflareRateLimiter<HonoConfig>({
+	rateLimitBinding(c) {
+		return c.env.USER_RATELIMIT;
+	},
+	keyGenerator(c) {
+		return c.get("user").userId;
+	},
+}));
 
 data.get("/", async function getData(c) {
-	const user = await getUser(c.req.header("Authorization"));
-	if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+	const user = c.get("user");
 
 	try {
 		const data = await getUserData(user.userId);
@@ -39,10 +66,7 @@ data.put(
 		return parsed.data;
 	}),
 	async function saveData(c) {
-		const data = c.req.valid("json");
-
-		const user = await getUser(c.req.header("Authorization"));
-		if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+		const user = c.get("user"), data = c.req.valid("json");
 
 		try {
 			await saveUserData(user.userId, data, new Date().toISOString());
@@ -54,8 +78,7 @@ data.put(
 );
 
 data.delete("/", async function deleteData(c) {
-	const user = await getUser(c.req.header("Authorization"));
-	if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+	const user = c.get("user");
 
 	try {
 		await deleteUserData(user.userId);
@@ -66,11 +89,7 @@ data.delete("/", async function deleteData(c) {
 });
 
 data.get("/raw", async function downloadData(c) {
-	// Used as a bypass for iOs users, since RNFS is missing so the file can't be downloaded with code
-	const user = await getUser(
-		c.req.header("Authorization") ?? c.req.query("auth"),
-	);
-	if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+	const user = c.get("user");
 
 	try {
 		const data = await retrieveUserData(user.userId);
@@ -91,9 +110,6 @@ data.get("/raw", async function downloadData(c) {
 });
 
 data.post("/decompress", async function decompressRawData(c) {
-	const user = await getUser(c.req.header("Authorization"));
-	if (!user) return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
-
 	const rawData = await c.req.text();
 
 	try {

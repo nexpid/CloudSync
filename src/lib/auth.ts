@@ -1,6 +1,6 @@
 import { jwtVerify, SignJWT } from "jose";
 
-interface TokenPayload {
+export interface TokenPayload {
 	userId: string;
 }
 
