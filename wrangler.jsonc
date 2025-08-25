@@ -27,7 +27,7 @@
 		{
 			"binding": "DB",
 			"database_name": "VendettaCloudSync",
-			"database_id": "a645225f-1c58-41ff-ba7e-61d50490837e",
+			"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
 		},
 	],
 	"env": {
@@ -54,7 +54,7 @@
 				{
 					"binding": "DB",
 					"database_name": "VendettaCloudSync",
-					"database_id": "a645225f-1c58-41ff-ba7e-61d50490837e",
+					"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
 				},
 			],
 		},
