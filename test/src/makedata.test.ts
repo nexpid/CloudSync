@@ -66,4 +66,4 @@ export const mockData: UserData = {
 	},
 };
 
-if (require.main === module) console.log(JSON.stringify(mockData, undefined, 4));
+if (require.main === module) console.log(JSON.stringify(mockData));

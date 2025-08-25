@@ -20,7 +20,7 @@ const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://discord.gg/ddcQf3s2Uq »`;
 
 export async function runSilly() {
-	if (!("CLIENT_TOKEN" in process.env)) {
+	if (!process.env.CLIENT_TOKEN) {
 		return logger.info("Silly not ran", { silly: { enabled: false } });
 	}
 

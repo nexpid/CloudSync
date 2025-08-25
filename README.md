@@ -27,6 +27,8 @@
   </a>
 </div>
 
+You can find the API documentation [here](./API_DOCS.md)
+
 ## Installation
 
 ```bash
@@ -36,6 +38,8 @@ $ bun install --omit=optional
 
 ## Selfhosting
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/nexpid/CloudSync)
+
 ### Prerequsities
 
 You need:
@@ -44,7 +48,7 @@ You need:
 - [Discord application](https://discord.com/developers/applications)[^2]
 - Randomly generated JWT secret[^3]
 
-Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in. Then run:
+Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in, then run:
 
 ```bash
 # publish secrets

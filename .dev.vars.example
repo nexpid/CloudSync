@@ -7,6 +7,8 @@ CLIENT_SECRET="................................."
 REDIRECT_URI="https://..................../api/auth/authorize"
 LOCAL_REDIRECT_URI="http://localhost:8787/api/auth/authorize"
 
-# optional and only used for Silly service
+# optional, only used for Silly service
 CLIENT_TOKEN="Bot ...................................................."
+
+# optional, only used for debugging
 ADMIN_USER_ID=".................."
