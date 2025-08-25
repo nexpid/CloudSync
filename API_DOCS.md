@@ -1,6 +1,6 @@
 # API Documentation
 
-Last updated: 72e1046d6095d5051a10efb8fc62a423e5c358ca
+API specification for custom implementations
 
 ## Concepts
 
