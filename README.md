@@ -52,7 +52,7 @@ Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets 
 
 ```bash
 # publish secrets
-$ bunx wrangler secret bulk .dev.vars
+$ bunx wrangler secret bulk .dev.vars --env=
 ```
 
 ### Running
@@ -86,7 +86,7 @@ Then run:
 $ bun install
 
 # publish secrets
-$ bunx wrangler secret bulk .dev.vars
+$ bunx wrangler secret bulk .dev.vars --env=
 ```
 
 ## Testing
