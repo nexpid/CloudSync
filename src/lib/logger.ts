@@ -9,6 +9,16 @@ export function table(obj: object) {
 		: obj;
 }
 
+function cleanContext(context: Record<string, unknown>) {
+	for (const [key, value] of Object.entries(context)) {
+		if (value instanceof Error) context[key] = value.stack ?? value.message;
+		else if (value && typeof value === "object" && !Array.isArray(value)) {
+			cleanContext(value as Record<string, unknown>);
+		}
+	}
+	return context;
+}
+
 export function log(
 	level: "info" | "warn" | "error",
 	message: string,
@@ -18,7 +28,7 @@ export function log(
 		timestamp: new Date().toISOString(),
 		level,
 		message,
-		...context,
+		context: context ? cleanContext(context) : null,
 	};
 
 	if (level === "error") {
