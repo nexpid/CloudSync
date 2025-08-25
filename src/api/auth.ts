@@ -11,7 +11,9 @@ import { HttpStatus } from "src/lib/http-status";
 import { logger } from "../lib/logger";
 
 type APIAccessTokenResult = RESTPostOAuth2AccessTokenResult | {
-	error: string;
+	code?: number;
+	message?: string;
+	error?: string;
 	error_description?: string;
 };
 
@@ -22,6 +24,8 @@ auth.get("/authorize", async function authorize(c) {
 	if (!code || !/^[a-z0-9]{30}$/i.test(code)) {
 		return c.text("Missing or invalid \"code\"", HttpStatus.BAD_REQUEST);
 	}
+
+	const url = new URL(c.req.url);
 
 	const response = await fetch(
 		RouteBases.api + Routes.oauth2TokenExchange(),
@@ -35,9 +39,7 @@ auth.get("/authorize", async function authorize(c) {
 				client_secret: c.env.CLIENT_SECRET,
 				code,
 				grant_type: "authorization_code",
-				redirect_uri: c.env.ENVIRONMENT === "production"
-					? c.env.REDIRECT_URI
-					: c.env.LOCAL_REDIRECT_URI,
+				redirect_uri: `${url.protocol}//${url.host}/api/auth/authorize`,
 				scope: "identify",
 			}),
 		},
@@ -53,7 +55,9 @@ auth.get("/authorize", async function authorize(c) {
 		const accessToken = JSON.parse(text) as APIAccessTokenResult;
 		if (!("access_token" in accessToken)) {
 			return c.text(
-				`Invalid OAuth2 code: [${accessToken.error}] ${accessToken.error_description}`,
+				`Invalid OAuth2 code: [${accessToken.code ?? accessToken.error}] ${
+					accessToken.message ?? accessToken.error_description
+				}`,
 				HttpStatus.BAD_REQUEST,
 			);
 		}

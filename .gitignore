@@ -1,5 +1,6 @@
 # prod
 dist/
+bundled/
 
 # dev
 .yarn/
@@ -20,7 +21,8 @@ node_modules/
 # env
 .env
 .env.production
-.dev.vars
+.dev.vars*
+!.dev.vars*example
 
 # logs
 logs/
@@ -35,5 +37,4 @@ lerna-debug.log*
 .DS_Store
 
 # custom
-test/mock
-bundled
+test/mock/

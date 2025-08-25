@@ -48,11 +48,11 @@ You need:
 - [Discord application](https://discord.com/developers/applications)[^2]
 - Randomly generated JWT secret[^3]
 
-Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in, then run:
+You will need to add an **OAuth2 redirect URI** to your Discord appliaction in the format of `https://your-worker.workers.dev/api/auth/authorize`. After that, create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in, then run:
 
 ```bash
 # publish secrets
-$ bunx wrangler secret bulk .dev.vars --env=
+$ bunx wrangler secret bulk .dev.vars
 ```
 
 ### Running
@@ -86,7 +86,7 @@ Then run:
 $ bun install
 
 # publish secrets
-$ bunx wrangler secret bulk .dev.vars --env=
+$ bunx wrangler secret bulk .dev.vars
 ```
 
 ## Testing

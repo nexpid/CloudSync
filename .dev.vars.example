@@ -1,14 +1,12 @@
 # randomly generated secret -> bun run test/src/jwt.ts
-JWT_SECRET="................................................................"
+JWT_SECRET=""
 
 # discord client oauth2 env variables
-CLIENT_ID=".................."
-CLIENT_SECRET="................................."
-REDIRECT_URI="https://..................../api/auth/authorize"
-LOCAL_REDIRECT_URI="http://localhost:8787/api/auth/authorize"
+CLIENT_ID=""
+CLIENT_SECRET=""
 
 # optional, only used for Silly service
-CLIENT_TOKEN="Bot ...................................................."
+CLIENT_TOKEN=""
 
 # optional, only used for debugging
-ADMIN_USER_ID=".................."
+ADMIN_USER_ID=""
