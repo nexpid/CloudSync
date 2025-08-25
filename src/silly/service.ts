@@ -69,6 +69,6 @@ export class SillyService {
 			.map((x) => String.fromCodePoint(x + 0xe0000))
 			.join("");
 
-		return (padding || "") + " " + encoded;
+		return `${padding || ""} ${encoded}`;
 	}
 }

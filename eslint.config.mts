@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
+import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -19,6 +20,7 @@ export default defineConfig([
 		plugins: {
 			js,
 			"simple-import-sort": simpleImportSort,
+			"unused-imports": unusedImports,
 		},
 		extends: ["js/recommended"],
 		languageOptions: {
@@ -47,14 +49,27 @@ export default defineConfig([
 		rules: {
 			"simple-import-sort/imports": "error",
 			"simple-import-sort/exports": "error",
+			"unused-imports/no-unused-imports": "error",
 
+			"@typescript-eslint/dot-notation": "error",
 			"@typescript-eslint/no-unused-vars": ["error", {
 				"varsIgnorePattern": "^_",
 				"argsIgnorePattern": "^_",
 				"ignoreRestSiblings": true,
 			}],
+			"@typescript-eslint/prefer-optional-chain": "error",
+			"@typescript-eslint/prefer-string-starts-ends-with": "error",
 
+			"eqeqeq": "error",
+			"new-cap": "error",
+			"no-array-constructor": "error",
+			"no-inner-declarations": "error",
+			"no-unneeded-ternary": "error",
+			"no-useless-concat": "error",
+			"prefer-template": "error",
+			"require-atomic-updates": "error",
 			"yoda": "error",
+
 			"no-control-regex": "off",
 			"no-unused-vars": "off",
 			"sort-imports": "off",

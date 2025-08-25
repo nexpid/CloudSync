@@ -10,7 +10,7 @@ const api = new Hono();
 
 api.get("/bench/:test", async function bench(c) {
 	const userId = await getUser(c.req.header("Authorization")).then(user => user?.userId);
-	if (!process.env.ADMIN_USER_ID || !userId || userId != process.env.ADMIN_USER_ID) {
+	if (!process.env.ADMIN_USER_ID || !userId || userId !== process.env.ADMIN_USER_ID) {
 		return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
 	}
 

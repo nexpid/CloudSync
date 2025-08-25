@@ -31,7 +31,7 @@ app.use(async function errorResponseHandler(c, next) {
 			userId: c.get("user")?.userId ?? null,
 			response: await c.res.clone().text(),
 		});
-	} else if (c.res.status == HttpStatus.BAD_REQUEST) {
+	} else if (c.res.status === HttpStatus.BAD_REQUEST) {
 		logger.warn(`Client error on ${c.req.method} ${c.req.path}`, {
 			statusCode: c.res.status,
 			userId: c.get("user")?.userId ?? null,

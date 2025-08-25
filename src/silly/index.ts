@@ -77,7 +77,7 @@ export async function runSilly() {
 		},
 		body: JSON.stringify({
 			icon: avatarSvg,
-			description: `${description}${fpte}`,
+			description: description + fpte,
 		}),
 	});
 	const changedIcon = await changedIconReq.json<RESTPatchCurrentApplicationResult>();
