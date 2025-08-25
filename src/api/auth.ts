@@ -37,37 +37,42 @@ auth.get("/authorize", async function authorize(c) {
 	);
 
 	const text = await response.text();
-	if (!response.ok) {
-		if (text.includes("error code: 1015")) {
-			return c.text("Ratelimited, please try again later!", HttpStatus.TOO_MANY_REQUESTS);
-		} else return c.text(`Invalid OAuth2 code: ${text}`, HttpStatus.BAD_REQUEST);
+	if (!response.ok && text.includes("error code: 1015")) {
+		return c.text("Ratelimited, please try again later!", HttpStatus.TOO_MANY_REQUESTS);
 	}
 
 	try {
-		const accessToken = JSON.parse(text) as RESTPostOAuth2AccessTokenResult | {
-			error: string;
-			error_description?: string;
-		};
-		if (!("access_token" in accessToken)) {
-			return c.text(
-				`Invalid OAuth2 code response (${
-					[accessToken.error, accessToken.error_description].filter((x) => x).join(", ")
-				})`,
-				HttpStatus.BAD_REQUEST,
-			);
+		let token: string;
+		try {
+			const accessToken = JSON.parse(text) as RESTPostOAuth2AccessTokenResult | {
+				error: string;
+				error_description?: string;
+			};
+			if (!("access_token" in accessToken)) {
+				return c.text(
+					`Invalid OAuth2 code response: [${accessToken.error}] ${accessToken.error_description}`,
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+
+			token = `${accessToken.token_type} ${accessToken.access_token}`;
+		} catch (e) {
+			console.error("Uncaught auth code response err", e);
+			return c.text(`Invalid OAuth2 API response: ${text}`, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		const { id } = await (
 			await fetch(RouteBases.api + Routes.user(), {
 				headers: {
-					authorization: `${accessToken.token_type} ${accessToken.access_token}`,
+					authorization: token,
 				},
 			})
 		).json<RESTGetAPICurrentUserResult>();
 
 		return c.text(await createToken(id));
 	} catch (e) {
-		return c.text(`Invalid OAuth2 API response: ${e}`, HttpStatus.BAD_REQUEST);
+		console.error("Uncaught auth err", e);
+		return c.text(`Invalid API response: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 

@@ -43,6 +43,10 @@ data.use(cloudflareRateLimiter<HonoConfig>({
 }));
 
 data.get("/", async function getData(c) {
+	if (c.req.query("will-error")) {
+		return c.text("The server is dead", HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
 	const user = c.get("user");
 
 	try {
@@ -51,6 +55,7 @@ data.get("/", async function getData(c) {
 		c.header("Last-Modified", data?.at);
 		return c.json(data?.data || null);
 	} catch (e) {
+		console.error("Uncaught data get err", e);
 		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
@@ -72,6 +77,7 @@ data.put(
 			await saveUserData(user.userId, data, new Date().toISOString());
 			return c.json(true);
 		} catch (e) {
+			console.error("Uncaught data put err", e);
 			return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	},
@@ -84,6 +90,7 @@ data.delete("/", async function deleteData(c) {
 		await deleteUserData(user.userId);
 		return c.json(true);
 	} catch (e) {
+		console.error("Uncaught data delete err", e);
 		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
@@ -105,6 +112,7 @@ data.get("/raw", async function downloadData(c) {
 		c.header("last-modified", data.at);
 		return c.text(data.data);
 	} catch (e) {
+		console.error("Uncaught data raw err", e);
 		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });

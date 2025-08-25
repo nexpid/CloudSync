@@ -59,6 +59,18 @@
 			],
 		},
 	},
+	"rules": [
+		{
+			"type": "CompiledWasm",
+			"globs": ["**/*.wasm"],
+			"fallthrough": true,
+		},
+		{
+			"type": "Text",
+			"globs": ["**/*.svg"],
+			"fallthrough": true,
+		},
+	],
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,

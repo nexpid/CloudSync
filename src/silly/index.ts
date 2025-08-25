@@ -1,3 +1,5 @@
+import { formatWithOptions } from "node:util";
+
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
 import {
@@ -9,63 +11,67 @@ import {
 	Routes,
 } from "discord-api-types/v10";
 
+import avatar from "../../assets/profile/avatar.svg";
+import banner from "../../assets/profile/banner.svg";
 import { SillyService } from "./service";
-
-let initiated = false,
-	doingSilly = false;
 
 const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://github.com/nexpid/CloudSync »
 « https://revenge.nexpid.xyz/cloud-sync »
 « https://discord.gg/ddcQf3s2Uq »`;
 
+function table(obj: object) {
+	return process.env.ENVIRONMENT === "local"
+		? formatWithOptions({
+			depth: Infinity,
+			colors: true,
+		}, obj)
+		: obj;
+}
+
 export async function runSilly() {
-	if (!process.env.CLIENT_TOKEN) return console.debug({ silly: { enabled: false } });
+	if (!("CLIENT_TOKEN" in process.env)) return console.debug(table({ silly: { enabled: false } }));
 
-	if (doingSilly) return console.warn({ silly: { busy: true } });
-
-	doingSilly = true;
-	if (!initiated) {
-		try {
-			await initWasm(resvgWasm);
-			initiated = true;
-		} catch (e) {
-			console.error({ silly: { resvg: false, error: String(e) } });
-			return (doingSilly = false);
-		}
+	try {
+		await initWasm(resvgWasm);
+	} catch (error) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		console.error({ silly: { resvg: false, error } });
+		return;
 	}
 
 	const colors = SillyService.getRandomColors();
 
-	const icon = SillyService.getIcon()
-		.replace(/#FF0000/g, colors.bg)
-		.replace(/#00FF00/g, colors.cloud)
-		.replace(/#0000FF/g, colors.cloudOutline);
-	const banner = SillyService.getBanner()
-		.replace(/#FF0000/g, colors.bg)
-		.replace(/#00FF00/g, colors.cloud)
-		.replace(/#0000FF/g, colors.cloudOutline);
-
-	const iconSvg = "data:image/png;base64,"
-		+ Buffer.from(
-			new Resvg(icon, {
-				fitTo: { mode: "width", value: 512 },
-				font: { loadSystemFonts: false },
-				shapeRendering: 2,
-			})
+	const avatarSvg = SillyService.toURL(
+			new Resvg(
+				avatar
+					.replace(/#FF0000/g, colors.bg)
+					.replace(/#00FF00/g, colors.cloud)
+					.replace(/#0000FF/g, colors.cloudOutline),
+				{
+					fitTo: { mode: "width", value: 512 },
+					font: { loadSystemFonts: false },
+					shapeRendering: 2,
+				},
+			)
 				.render()
 				.asPng(),
-		).toString("base64");
-	const bannerSvg = "data:image/png;base64,"
-		+ Buffer.from(
-			new Resvg(banner, {
-				fitTo: { mode: "width", value: 680 },
-				font: { loadSystemFonts: false },
-				shapeRendering: 2,
-			})
+		),
+		bannerSvg = SillyService.toURL(
+			new Resvg(
+				banner
+					.replace(/#FF0000/g, colors.bg)
+					.replace(/#00FF00/g, colors.cloud)
+					.replace(/#0000FF/g, colors.cloudOutline),
+				{
+					fitTo: { mode: "width", value: 680 },
+					font: { loadSystemFonts: false },
+					shapeRendering: 2,
+				},
+			)
 				.render()
 				.asPng(),
-		).toString("base64");
+		);
 	const fpte = SillyService.getFpte(colors.cloud, colors.bg);
 
 	// "Bot " is included in the token
@@ -78,7 +84,7 @@ export async function runSilly() {
 			authorization: token,
 		},
 		body: JSON.stringify({
-			icon: iconSvg,
+			icon: avatarSvg,
 			description: `${description}${fpte}`,
 		}),
 	});
@@ -96,10 +102,8 @@ export async function runSilly() {
 	});
 	const changedBanner = await changedBannerReq.json<RESTPatchAPICurrentUserResult>();
 
-	doingSilly = false;
-
 	if (!changedIcon?.id || !changedBanner?.id) {
-		return console.error({
+		return console.error(table({
 			silly: {
 				logs: [changedIcon, changedBanner].filter((x) => !x.id),
 				ratelimits: Object.fromEntries(
@@ -117,9 +121,9 @@ export async function runSilly() {
 				),
 				success: false,
 			},
-		});
+		}));
 	} else {
-		return console.debug({
+		return console.info(table({
 			silly: {
 				colors,
 				banner: RouteBases.cdn
@@ -131,6 +135,6 @@ export async function runSilly() {
 				fpte,
 				success: true,
 			},
-		});
+		}));
 	}
 }
