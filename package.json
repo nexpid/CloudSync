@@ -1,33 +1,64 @@
 {
 	"name": "cloud-sync",
 	"scripts": {
-		"format": "dprint fmt \"src/**/*.ts\"",
-		"lint": "eslint \"src/**/*.ts\" --fix",
-		"ts": "ts-node -T",
-		"dev": "wrangler dev --env=local",
+		"dev": "wrangler dev --env local",
 		"deploy": "wrangler deploy --minify",
-		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run",
-		"runtime": "wrangler types --env-interface Env"
+		"dry-deploy": "wrangler deploy --minify --outdir=./bundled --dry-run --env=",
+		"runtime": "wrangler types",
+		"format": "dprint fmt",
+		"lint": "eslint --fix",
+		"typecheck": "bun run runtime && tsc --noEmit"
 	},
 	"dependencies": {
-		"@resvg/resvg-wasm": "^2.6.2",
+		"@hono-rate-limiter/cloudflare": "^0.2.2",
 		"discord-api-types": "^0.38.21",
 		"hono": "^4.9.4",
 		"jose": "^6.0.13",
-		"zod": "^4.0.17"
+		"zod": "^4.1.1"
 	},
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.1",
-		"@eslint/js": "^9.33.0",
+		"@eslint/js": "^9.34.0",
 		"@types/node": "^24.3.0",
-		"@typescript-eslint/eslint-plugin": "^8.40.0",
-		"@typescript-eslint/parser": "^8.40.0",
-		"eslint": "^9.33.0",
+		"eslint": "^9.34.0",
+		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"eslint-plugin-unused-imports": "^4.2.0",
 		"globals": "^16.3.0",
-		"prettier": "^3.6.2",
-		"ts-node": "^10.9.2",
 		"typescript": "^5.9.2",
+		"typescript-eslint": "^8.40.0",
 		"wrangler": "^4.32.0"
 	},
-	"packageManager": "bun@1.2.20"
+	"optionalDependencies": {
+		"@resvg/resvg-wasm": "^2.6.2"
+	},
+	"peerDependencies": {
+		"jiti": "^2.5.1"
+	},
+	"packageManager": "bun@1.2.20",
+	"cloudflare": {
+		"bindings": {
+			"JWT_SECRET": {
+				"description": "Randomly generated secret, use `bun run test/src/jwt.ts` in cwd to generate"
+			},
+			"CLIENT_ID": {
+				"description": "The Discord OAuth2 application ID"
+			},
+			"CLIENT_SECRET": {
+				"description": "The Discord OAuth2 application secret"
+			},
+			"REDIRECT_URI": {
+				"description": "The Discord OAuth2 application redirect URI",
+				"default": "https://your-worker.workers.dev/api/auth/authorize"
+			},
+			"LOCAL_REDIRECT_URI": {
+				"description": "A local Discord OAuth2 application redirect URI, used for development",
+				"default": "http://127.0.0.1:8787/api/auth/authorize"
+			},
+			"CLIENT_TOKEN": {
+				"description": "(Optional) A Discord bot token (prefixed with Bot token type), used for the Silly service"
+			},
+			"ADMIN_USER_ID": {
+				"description": "(Optional) Your Discord user id, used for testing"
+			}
+		}
+	}
 }

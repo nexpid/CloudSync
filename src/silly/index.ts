@@ -1,11 +1,18 @@
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
-import { CDNRoutes, ImageFormat, RouteBases, Routes } from "discord-api-types/v10";
-import { env } from "src/lib/env";
-import { SillyService } from "./service";
+import {
+	CDNRoutes,
+	ImageFormat,
+	RESTPatchAPICurrentUserResult,
+	RESTPatchCurrentApplicationResult,
+	RouteBases,
+	Routes,
+} from "discord-api-types/v10";
 
-let initiated = false,
-	doingSilly = false;
+import avatar from "../../assets/profile/avatar.svg";
+import banner from "../../assets/profile/banner.svg";
+import { logger } from "../lib/logger";
+import { SillyService } from "./service";
 
 const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://github.com/nexpid/CloudSync »
@@ -13,69 +20,67 @@ const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://discord.gg/ddcQf3s2Uq »`;
 
 export async function runSilly() {
-	if (!env.CLIENT_TOKEN) return console.debug({ silly: { enabled: false } });
+	if (!process.env.CLIENT_TOKEN) {
+		return logger.info("Silly not ran", { silly: { enabled: false } });
+	}
 
-	if (doingSilly) return console.warn({ silly: { busy: true } });
-
-	doingSilly = true;
-	if (!initiated) {
-		try {
-			await initWasm(resvgWasm);
-			initiated = true;
-		} catch (error) {
-			console.error({ silly: { resvg: false, error } });
-			return (doingSilly = false);
-		}
+	try {
+		await initWasm(resvgWasm);
+	} catch (error) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		console.error({ silly: { resvg: false, error } });
+		return;
 	}
 
 	const colors = SillyService.getRandomColors();
 
-	const icon = SillyService.getIcon()
-		.replace(/#FF0000/g, colors.bg)
-		.replace(/#00FF00/g, colors.cloud)
-		.replace(/#0000FF/g, colors.cloudOutline);
-	const banner = SillyService.getBanner()
-		.replace(/#FF0000/g, colors.bg)
-		.replace(/#00FF00/g, colors.cloud)
-		.replace(/#0000FF/g, colors.cloudOutline);
-
-	const iconSvg = "data:image/png;base64,"
-		+ Buffer.from(
-			new Resvg(icon, {
-				fitTo: { mode: "width", value: 512 },
-				font: { loadSystemFonts: false },
-				shapeRendering: 2,
-			})
+	const avatarSvg = SillyService.toURL(
+			new Resvg(
+				avatar
+					.replace(/#FF0000/g, colors.bg)
+					.replace(/#00FF00/g, colors.cloud)
+					.replace(/#0000FF/g, colors.cloudOutline),
+				{
+					fitTo: { mode: "width", value: 512 },
+					font: { loadSystemFonts: false },
+					shapeRendering: 2,
+				},
+			)
 				.render()
 				.asPng(),
-		).toString("base64");
-	const bannerSvg = "data:image/png;base64,"
-		+ Buffer.from(
-			new Resvg(banner, {
-				fitTo: { mode: "width", value: 680 },
-				font: { loadSystemFonts: false },
-				shapeRendering: 2,
-			})
+		),
+		bannerSvg = SillyService.toURL(
+			new Resvg(
+				banner
+					.replace(/#FF0000/g, colors.bg)
+					.replace(/#00FF00/g, colors.cloud)
+					.replace(/#0000FF/g, colors.cloudOutline),
+				{
+					fitTo: { mode: "width", value: 680 },
+					font: { loadSystemFonts: false },
+					shapeRendering: 2,
+				},
+			)
 				.render()
 				.asPng(),
-		).toString("base64");
-	const ftpe = SillyService.getFtpe(colors.cloud, colors.bg);
+		);
+	const fpte = SillyService.getFpte(colors.cloud, colors.bg);
 
 	// "Bot " is included in the token
-	const id = env.CLIENT_ID,
-		token = env.CLIENT_TOKEN;
-	const changedIconReq = await fetch(RouteBases.api + `/applications/${id}`, {
+	const id = process.env.CLIENT_ID,
+		token = process.env.CLIENT_TOKEN;
+	const changedIconReq = await fetch(RouteBases.api + Routes.currentApplication(), {
 		method: "PATCH",
 		headers: {
 			"content-type": "application/json",
 			authorization: token,
 		},
 		body: JSON.stringify({
-			icon: iconSvg,
-			description: `${description}${ftpe}`,
+			icon: avatarSvg,
+			description: description + fpte,
 		}),
 	});
-	const changedIcon = await changedIconReq.json<any>();
+	const changedIcon = await changedIconReq.json<RESTPatchCurrentApplicationResult>();
 
 	const changedBannerReq = await fetch(RouteBases.api + Routes.user(), {
 		method: "PATCH",
@@ -87,12 +92,10 @@ export async function runSilly() {
 			banner: bannerSvg,
 		}),
 	});
-	const changedBanner = await changedBannerReq.json<any>();
-
-	doingSilly = false;
+	const changedBanner = await changedBannerReq.json<RESTPatchAPICurrentUserResult>();
 
 	if (!changedIcon?.id || !changedBanner?.id) {
-		return console.error({
+		return logger.info("Silly service error", {
 			silly: {
 				logs: [changedIcon, changedBanner].filter((x) => !x.id),
 				ratelimits: Object.fromEntries(
@@ -112,7 +115,7 @@ export async function runSilly() {
 			},
 		});
 	} else {
-		return console.debug({
+		return logger.info("Silly service result", {
 			silly: {
 				colors,
 				banner: RouteBases.cdn
@@ -121,7 +124,7 @@ export async function runSilly() {
 					+ CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
 				icon: RouteBases.cdn
 					+ CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
-				ftpe,
+				fpte,
 				success: true,
 			},
 		});

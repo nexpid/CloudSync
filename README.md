@@ -1,7 +1,7 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/icon-bright.svg" height="32">
-    <img alt="Cloud Sync Icon" src="./assets/icon-dim.svg" height="32">
+    <img alt="Icon" src="./assets/icon-dim.svg" height="32">
   </picture> Cloud Sync
 </h1>
 
@@ -27,27 +27,78 @@
   </a>
 </div>
 
+You can find the API documentation [here](./API_DOCS.md)
+
 ## Installation
 
 ```bash
-$ pnpm install
+# install without optionalDependencies
+$ bun install --omit=optional
 ```
 
-## Running the app
+## Selfhosting
 
-Fill in the `.dev.vars` file and upload the secrets to your Cloudflare worker for deployment
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/nexpid/CloudSync)
+
+### Prerequsities
+
+You need:
+
+- [Cloudflare D1 database](https://developers.cloudflare.com/d1/)[^1]
+- [Discord application](https://discord.com/developers/applications)[^2]
+- Randomly generated JWT secret[^3]
+
+Create a `.dev.vars` file based on `.dev.vars.example` with all of your secrets filled in, then run:
 
 ```bash
-# generate runtime.d.ts
-$ pnpm run runtime
+# publish secrets
+$ bunx wrangler secret bulk .dev.vars
+```
 
+### Running
+
+```bash
 # development
-$ pnpm run dev
+$ bun run dev
+
+# bench the size of your deployment
+$ bun run dry-deploy
 
 # deploy
-$ pnpm run deploy
+$ bun run deploy
 ```
+
+## Silly service
+
+A cron schedule that runs every day at **2:00 AM UTC** which gives the bot a randomized avatar, banner and even [FPTE](https://vencord.dev/plugins/FakeProfileThemes) color theme. This is disabled by default.
+
+To enable this, you have to create a Discord Bot user for your application. After creating it, save its token in `.dev.vars`:
+
+```
+# optional and only used for Silly cron schedule
+CLIENT_TOKEN="Bot [your token here]"
+```
+
+Then run:
+
+```bash
+# install with optional dependencies
+$ bun install
+
+# publish secrets
+$ bunx wrangler secret bulk .dev.vars
+```
+
+## Testing
+
+There are some basic tests in the `test` folder, but if you're feeling brave enough, feel free to write some actual unit tests!
 
 ## License
 
 MIT
+
+[^1]: setup guide is [here](./HOW_TO_D1.md)
+
+[^2]: creating a Discord bot (seperate from an application) is only required if you need a bot token (for exaple for the [silly service](#silly-service))
+
+[^3]: run `bun run test/src/jwt.ts`

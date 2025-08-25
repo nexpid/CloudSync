@@ -3,30 +3,46 @@ import {
 	brotliCompress as _brotliCompress,
 	brotliDecompress as _brotliDecompress,
 } from "node:zlib";
+
 import { UserData, UserDataSchema } from ".";
+
+const latestDataVersion = "2";
 
 const brotliCompress = promisify(_brotliCompress);
 const brotliDecompress = promisify(_brotliDecompress);
 
-const noInvalidChars = /[\n\u0000\u0001]/g;
+const noInvalidChars = /[\n\x00\x01]/g;
 
-const stripNoCloudSync = (obj: any) => {
+function stripNoCloudSync(obj: unknown) {
 	if (obj && typeof obj === "object") {
-		if ("__no_cloud_sync" in obj) return undefined;
+		if (Array.isArray(obj)) {
+			const filtered = [];
+			for (const val of obj) {
+				const rep = stripNoCloudSync(val);
+				if (rep !== undefined) filtered.push(rep);
+			}
 
-		for (const key of Object.keys(obj)) {
-			const val = stripNoCloudSync(obj[key]);
-			if (val === undefined) delete obj[key];
-			else obj[key] = val;
+			return filtered as unknown[];
+		} else {
+			// deprecated
+			if ("__no_cloud_sync" in obj) return undefined;
+			if ("__no_sync" in obj) return undefined;
+
+			const filtered = {};
+			for (const [key, value] of Object.entries(obj)) {
+				const rep = stripNoCloudSync(value);
+				if (rep !== undefined) filtered[key] = rep;
+			}
+
+			return filtered;
 		}
-	}
-	return obj;
-};
+	} else return obj;
+}
 
 export function reconstruct(data: string) {
 	const [version, plugins, themes, installedFonts, customFonts, ...incorrect] = data
 		.split("\n");
-	if (incorrect.length > 1 || version !== "2") return;
+	if (incorrect.length > 1 || version !== latestDataVersion) return;
 
 	const dataObj: UserData = {
 		plugins: {},
@@ -37,8 +53,8 @@ export function reconstruct(data: string) {
 		},
 	};
 
-	for (const plugin of plugins.split("\u0001")) {
-		const stuff = plugin.split("\u0000");
+	for (const plugin of plugins.split("\x01")) {
+		const stuff = plugin.split("\x00");
 		const url = stuff[0];
 		if (!url) continue;
 		let [enabled, storage] = stuff.slice(1);
@@ -56,18 +72,18 @@ export function reconstruct(data: string) {
 		}
 
 		dataObj.plugins[url] = {
-			enabled: enabled === "1",
-			storage,
+			enabled: Boolean(enabled),
+			storage: storage || "{}",
 		};
 	}
 
-	for (const font of customFonts.split("\u0001")) {
-		const [spec, src, enabled] = font.split("\u0000");
+	for (const font of customFonts.split("\x01")) {
+		const [spec, src, enabled] = font.split("\x00");
 		if (Number.isNaN(Number(spec)) || !src) continue;
 
-		let dt: any;
+		let raw: object;
 		try {
-			dt = JSON.parse(src);
+			raw = JSON.parse(src) as object;
 		} catch {
 			continue;
 		}
@@ -75,12 +91,12 @@ export function reconstruct(data: string) {
 		dataObj.fonts.custom.push({
 			spec: Number(spec),
 			enabled: enabled === "1",
-			...dt,
+			...raw,
 		});
 	}
 
-	for (const theme of themes.split("\u0001")) {
-		const [url, enabled] = theme.split("\u0000");
+	for (const theme of themes.split("\x01")) {
+		const [url, enabled] = theme.split("\x00");
 		if (!url) continue;
 
 		try {
@@ -94,8 +110,8 @@ export function reconstruct(data: string) {
 		};
 	}
 
-	for (const font of installedFonts.split("\u0001")) {
-		const [url, enabled] = font.split("\u0000");
+	for (const font of installedFonts.split("\x01")) {
+		const [url, enabled] = font.split("\x00");
 		if (!url) continue;
 
 		try {
@@ -117,7 +133,7 @@ export function deconstruct(data: UserData) {
 	if (error) throw error;
 
 	const chunks = new Array<string>();
-	chunks.push("2"); // data version, used for major data structure changes
+	chunks.push(latestDataVersion); // data version, used for major data structure changes
 
 	const pluginChunks = new Array<string>();
 	const themeChunks = new Array<string>();
@@ -137,7 +153,7 @@ export function deconstruct(data: UserData) {
 			subChunks.push(JSON.stringify(dt).replace(noInvalidChars, ""));
 		}
 
-		pluginChunks.push(subChunks.join("\u0000"));
+		pluginChunks.push(subChunks.join("\x00"));
 	}
 
 	// CUSTOM FONTS
@@ -148,11 +164,11 @@ export function deconstruct(data: UserData) {
 		delete fontData.enabled;
 		delete fontData.spec;
 
-		subChunks.push(font.spec.toString());
+		subChunks.push(String(font.spec));
 		subChunks.push(JSON.stringify(fontData));
 		if (font.enabled) subChunks.push("1");
 
-		customFontChunks.push(subChunks.join("\u0000"));
+		customFontChunks.push(subChunks.join("\x00"));
 	}
 
 	// THEMES
@@ -163,7 +179,7 @@ export function deconstruct(data: UserData) {
 		subChunks.push(url.replace(noInvalidChars, ""));
 		if (enabled) subChunks.push(enabled ? "1" : "0");
 
-		themeChunks.push(subChunks.join("\u0000"));
+		themeChunks.push(subChunks.join("\x00"));
 	}
 
 	// INSTALLED FONTS
@@ -174,14 +190,14 @@ export function deconstruct(data: UserData) {
 		subChunks.push(url.replace(noInvalidChars, ""));
 		if (enabled) subChunks.push("1");
 
-		installedFontChunks.push(subChunks.join("\u0000"));
+		installedFontChunks.push(subChunks.join("\x00"));
 	}
 
 	chunks.push(
-		pluginChunks.join("\u0001"),
-		themeChunks.join("\u0001"),
-		installedFontChunks.join("\u0001"),
-		customFontChunks.join("\u0001"),
+		pluginChunks.join("\x01"),
+		themeChunks.join("\x01"),
+		installedFontChunks.join("\x01"),
+		customFontChunks.join("\x01"),
 	);
 
 	return chunks.join("\n");
