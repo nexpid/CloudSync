@@ -59,9 +59,6 @@
 			],
 		},
 	},
-	"limits": {
-		"cpu_ms": 10000,
-	},
 	"rules": [
 		{
 			"type": "CompiledWasm",
