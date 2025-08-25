@@ -4,6 +4,9 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+// @ts-expect-error import.meta is allowed
+const root = import.meta.dirname;
+
 export default defineConfig([
 	globalIgnores([
 		".wrangler",
@@ -36,8 +39,7 @@ export default defineConfig([
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
-				// @ts-expect-error Too much yapping
-				tsconfigRootDir: import.meta.dirname,
+				tsconfigRootDir: root,
 			},
 		},
 	},

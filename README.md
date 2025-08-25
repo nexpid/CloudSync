@@ -72,7 +72,7 @@ $ bun run deploy
 
 A cron schedule that runs every day at **2:00 AM UTC** which gives the bot a randomized avatar, banner and even [FPTE](https://vencord.dev/plugins/FakeProfileThemes) color theme. This is disabled by default.
 
-This requires your discord application to have a user bot. After creating one, save its token in `.dev.vars`:
+To enable this, you have to create a Discord Bot user for your application. After creating it, save its token in `.dev.vars`:
 
 ```
 # optional and only used for Silly cron schedule

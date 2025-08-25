@@ -36,5 +36,4 @@ lerna-debug.log*
 
 # custom
 test/mock
-test/creds.json
 bundled
