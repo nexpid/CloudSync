@@ -1,5 +1,3 @@
-import { formatWithOptions } from "node:util";
-
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
 import {
@@ -13,6 +11,7 @@ import {
 
 import avatar from "../../assets/profile/avatar.svg";
 import banner from "../../assets/profile/banner.svg";
+import { logger } from "../lib/logger";
 import { SillyService } from "./service";
 
 const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
@@ -20,17 +19,10 @@ const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
 « https://revenge.nexpid.xyz/cloud-sync »
 « https://discord.gg/ddcQf3s2Uq »`;
 
-function table(obj: object) {
-	return process.env.ENVIRONMENT === "local"
-		? formatWithOptions({
-			depth: Infinity,
-			colors: true,
-		}, obj)
-		: obj;
-}
-
 export async function runSilly() {
-	if (!("CLIENT_TOKEN" in process.env)) return console.debug(table({ silly: { enabled: false } }));
+	if (!("CLIENT_TOKEN" in process.env)) {
+		return logger.info("Silly not ran", { silly: { enabled: false } });
+	}
 
 	try {
 		await initWasm(resvgWasm);
@@ -103,7 +95,7 @@ export async function runSilly() {
 	const changedBanner = await changedBannerReq.json<RESTPatchAPICurrentUserResult>();
 
 	if (!changedIcon?.id || !changedBanner?.id) {
-		return console.error(table({
+		return logger.info("Silly service error", {
 			silly: {
 				logs: [changedIcon, changedBanner].filter((x) => !x.id),
 				ratelimits: Object.fromEntries(
@@ -121,9 +113,9 @@ export async function runSilly() {
 				),
 				success: false,
 			},
-		}));
+		});
 	} else {
-		return console.info(table({
+		return logger.info("Silly service result", {
 			silly: {
 				colors,
 				banner: RouteBases.cdn
@@ -135,6 +127,6 @@ export async function runSilly() {
 				fpte,
 				success: true,
 			},
-		}));
+		});
 	}
 }

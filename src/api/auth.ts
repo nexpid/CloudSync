@@ -8,6 +8,8 @@ import { Hono } from "hono";
 import { createToken } from "src/lib/auth";
 import { HttpStatus } from "src/lib/http-status";
 
+import { logger } from "../lib/logger";
+
 const auth = new Hono<{ Bindings: Env }>();
 
 auth.get("/authorize", async function authorize(c) {
@@ -50,15 +52,18 @@ auth.get("/authorize", async function authorize(c) {
 			};
 			if (!("access_token" in accessToken)) {
 				return c.text(
-					`Invalid OAuth2 code response: [${accessToken.error}] ${accessToken.error_description}`,
+					`Invalid OAuth2 code: [${accessToken.error}] ${accessToken.error_description}`,
 					HttpStatus.BAD_REQUEST,
 				);
 			}
 
 			token = `${accessToken.token_type} ${accessToken.access_token}`;
-		} catch (e) {
-			console.error("Uncaught auth code response err", e);
-			return c.text(`Invalid OAuth2 API response: ${text}`, HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (error) {
+			logger.error("Uncaught auth code response err", {
+				response: text,
+				error,
+			});
+			return c.text(`Invalid OAuth2 code response: ${text}`, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		const { id } = await (
@@ -70,9 +75,12 @@ auth.get("/authorize", async function authorize(c) {
 		).json<RESTGetAPICurrentUserResult>();
 
 		return c.text(await createToken(id));
-	} catch (e) {
-		console.error("Uncaught auth err", e);
-		return c.text(`Invalid API response: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR);
+	} catch (error) {
+		logger.error("Uncaught auth err", {
+			response: text,
+			error,
+		});
+		return c.text(`Invalid OAuth2 API response: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 

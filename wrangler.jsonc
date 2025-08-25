@@ -77,7 +77,7 @@
 	},
 	"triggers": {
 		"crons": [
-			// the silly system
+			// the silly service
 			"0 2 * * *",
 		],
 	},

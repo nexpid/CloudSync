@@ -13,6 +13,8 @@ import { decompressData } from "src/lib/db/conversion";
 import { HttpStatus } from "src/lib/http-status";
 import { prettifyError } from "zod";
 
+import { logger } from "../lib/logger";
+
 interface HonoConfig {
 	Variables: {
 		user: TokenPayload;
@@ -47,16 +49,16 @@ data.get("/", async function getData(c) {
 		return c.text("The server is dead", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	const user = c.get("user");
+	const userId = c.get("user").userId;
 
 	try {
-		const data = await getUserData(user.userId);
+		const data = await getUserData(userId);
 
 		c.header("Last-Modified", data?.at);
 		return c.json(data?.data || null);
-	} catch (e) {
-		console.error("Uncaught data get err", e);
-		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
+	} catch (error) {
+		logger.error("Uncaught data get err", { userId, error });
+		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
@@ -71,35 +73,35 @@ data.put(
 		return parsed.data;
 	}),
 	async function saveData(c) {
-		const user = c.get("user"), data = c.req.valid("json");
+		const userId = c.get("user").userId, data = c.req.valid("json");
 
 		try {
-			await saveUserData(user.userId, data, new Date().toISOString());
+			await saveUserData(userId, data, new Date().toISOString());
 			return c.json(true);
-		} catch (e) {
-			console.error("Uncaught data put err", e);
-			return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (error) {
+			logger.error("Uncaught data put err", { userId, error });
+			return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	},
 );
 
 data.delete("/", async function deleteData(c) {
-	const user = c.get("user");
+	const userId = c.get("user").userId;
 
 	try {
-		await deleteUserData(user.userId);
+		await deleteUserData(userId);
 		return c.json(true);
-	} catch (e) {
-		console.error("Uncaught data delete err", e);
-		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
+	} catch (error) {
+		logger.error("Uncaught data delete err", { userId, error });
+		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
 data.get("/raw", async function downloadData(c) {
-	const user = c.get("user");
+	const userId = c.get("user").userId;
 
 	try {
-		const data = await retrieveUserData(user.userId);
+		const data = await retrieveUserData(userId);
 		if (!data) return c.body(null, HttpStatus.NO_CONTENT);
 
 		const today = new Date().toISOString().replace(/T/, "_").replace(/:/g, "").replace(/\..+$/, "");
@@ -111,20 +113,21 @@ data.get("/raw", async function downloadData(c) {
 		);
 		c.header("last-modified", data.at);
 		return c.text(data.data);
-	} catch (e) {
-		console.error("Uncaught data raw err", e);
-		return c.text(String(e), HttpStatus.INTERNAL_SERVER_ERROR);
+	} catch (error) {
+		logger.error("Uncaught data raw err", { userId, error });
+		return c.text(`Unknown error occured: ${String(error)}`, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 });
 
 data.post("/decompress", async function decompressRawData(c) {
-	const rawData = await c.req.text();
+	const userId = c.get("user").userId, rawData = await c.req.text();
 
 	try {
 		Buffer.from(rawData, "base64"); // make sure data is base64
 		return c.json(await decompressData(rawData));
-	} catch (e) {
-		return c.text(String(e), HttpStatus.BAD_REQUEST);
+	} catch (error) {
+		logger.warn("Decompress data failed", { userId, error });
+		return c.text(`Failed to decompress: ${String(error)}`, HttpStatus.BAD_REQUEST);
 	}
 });
 

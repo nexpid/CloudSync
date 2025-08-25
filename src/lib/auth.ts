@@ -6,6 +6,7 @@ export interface TokenPayload {
 
 const alg = "HS256";
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const expirationTime = "1y";
 
 export async function getUser(token: string): Promise<TokenPayload | null> {
 	if (!token) return null;
@@ -26,6 +27,6 @@ export async function createToken(userId: string): Promise<string> {
 	})
 		.setProtectedHeader({ alg })
 		.setIssuedAt()
-		.setExpirationTime("1y")
+		.setExpirationTime(expirationTime)
 		.sign(secret);
 }

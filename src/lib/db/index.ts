@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { logger } from "../logger";
 import { compressData, decompressData } from "./conversion";
 
 export const UserDataSchema = z.object({
@@ -142,7 +143,7 @@ export async function retrieveUserData(
 			void saveUserData(userId, newData, at);
 			return { data: newData, at };
 		} catch (e) {
-			console.error("Data migration v2 failed", e);
+			logger.error("Data migration v2 failed", { userId, error: e });
 			throw new Error(`Failed to migrate your data to v2: ${String(e)}`);
 		}
 	} else return { data: data.sync, at: data.at ?? new Date().toISOString() };

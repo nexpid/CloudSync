@@ -6,6 +6,8 @@ import {
 
 import { UserData, UserDataSchema } from ".";
 
+const latestDataVersion = "2";
+
 const brotliCompress = promisify(_brotliCompress);
 const brotliDecompress = promisify(_brotliDecompress);
 
@@ -40,7 +42,7 @@ function stripNoCloudSync(obj: unknown) {
 export function reconstruct(data: string) {
 	const [version, plugins, themes, installedFonts, customFonts, ...incorrect] = data
 		.split("\n");
-	if (incorrect.length > 1 || version !== "2") return;
+	if (incorrect.length > 1 || version !== latestDataVersion) return;
 
 	const dataObj: UserData = {
 		plugins: {},
@@ -131,7 +133,7 @@ export function deconstruct(data: UserData) {
 	if (error) throw error;
 
 	const chunks = new Array<string>();
-	chunks.push("2"); // data version, used for major data structure changes
+	chunks.push(latestDataVersion); // data version, used for major data structure changes
 
 	const pluginChunks = new Array<string>();
 	const themeChunks = new Array<string>();
