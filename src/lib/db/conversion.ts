@@ -13,32 +13,6 @@ const brotliDecompress = promisify(_brotliDecompress);
 
 const noInvalidChars = /[\n\x00\x01]/g;
 
-function stripNoCloudSync(obj: unknown) {
-	if (obj && typeof obj === "object") {
-		if (Array.isArray(obj)) {
-			const filtered = [];
-			for (const val of obj) {
-				const rep = stripNoCloudSync(val);
-				if (rep !== undefined) filtered.push(rep);
-			}
-
-			return filtered as unknown[];
-		} else {
-			// deprecated
-			if ("__no_cloud_sync" in obj) return undefined;
-			if ("__no_sync" in obj) return undefined;
-
-			const filtered = {};
-			for (const [key, value] of Object.entries(obj)) {
-				const rep = stripNoCloudSync(value);
-				if (rep !== undefined) filtered[key] = rep;
-			}
-
-			return filtered;
-		}
-	} else return obj;
-}
-
 export function reconstruct(data: string) {
 	const [version, plugins, themes, installedFonts, customFonts, ...incorrect] = data
 		.split("\n");
@@ -148,7 +122,7 @@ export function deconstruct(data: UserData) {
 		subChunks.push(url.replace(noInvalidChars, ""));
 		if (enabled) subChunks.push("1");
 
-		const dt = storage && stripNoCloudSync(JSON.parse(storage));
+		const dt = storage && JSON.parse(storage) as object;
 		if (dt && Boolean(Object.keys(dt).length)) {
 			subChunks.push(JSON.stringify(dt).replace(noInvalidChars, ""));
 		}
