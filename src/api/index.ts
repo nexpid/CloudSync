@@ -11,7 +11,7 @@ const api = new Hono();
 api.get("/bench/:test", async function bench(c) {
 	const userId = await getUser(c.req.header("Authorization")).then(user => user?.userId);
 	if (!process.env.ADMIN_USER_ID || !userId || userId !== process.env.ADMIN_USER_ID) {
-		return c.text("Unauthorized", HttpStatus.UNAUTHORIZED);
+		return c.text("Forbidden", HttpStatus.FORBIDDEN);
 	}
 
 	const test = c.req.param("test");
@@ -35,7 +35,7 @@ api.get("/bench/:test", async function bench(c) {
 			return c.body(null, HttpStatus.NO_CONTENT);
 		}
 		default: {
-			return c.json(true, HttpStatus.I_AM_A_TEAPOT);
+			return c.json(true, HttpStatus.IM_A_TEAPOT);
 		}
 	}
 });

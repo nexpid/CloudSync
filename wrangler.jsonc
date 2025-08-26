@@ -38,6 +38,9 @@
 			"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
 		},
 	],
+	"define": {
+		"IS_PRODUCTION": "false",
+	},
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,

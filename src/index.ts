@@ -49,7 +49,10 @@ app.onError(function errorHandler(error, c) {
 	return c.text(`Unknown error occurred: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
 });
 
-app.get("/", (c) => c.redirect("https://github.com/nexpid/CloudSync", 301));
+app.get(
+	"/",
+	(c) => c.redirect("https://github.com/nexpid/CloudSync", HttpStatus.PERMANENT_REDIRECT),
+);
 
 app.route("/api", api);
 
