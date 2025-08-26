@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { logger } from "../logger";
-import { compressData, decompressData } from "./conversion";
+import { compressData, decompressData, latestDataVersion } from "./conversion";
+import { migrateUserData, RawSQLUserData } from "./migration";
 
 export const UserDataSchema = z.object({
 	plugins: z.record(
@@ -44,18 +44,6 @@ export type ApiUserData = {
 	at: string;
 };
 
-interface v1UserData {
-	themes: {
-		id: string;
-		enabled: boolean;
-	}[];
-	plugins: {
-		id: string;
-		enabled: boolean;
-		options: object;
-	}[];
-}
-
 let env: Env;
 export function assignEnv(_env: Env) {
 	env = _env;
@@ -77,7 +65,7 @@ export async function saveUserData(
 		"insert or replace into data (user, version, sync, at) values (?, ?, ?, ?)",
 		[
 			userId,
-			"2",
+			String(latestDataVersion),
 			typeof data === "string" ? data : await compressData(data),
 			at,
 		],
@@ -107,44 +95,8 @@ export async function getUserData(userId: string): Promise<ApiUserData> {
 export async function retrieveUserData(
 	userId: string,
 ): Promise<{ data: string; at: string } | null> {
-	const data = await sql("select * from data where user = ?", [userId]).first<
-		{
-			user: string;
-			version: number;
-			sync: string;
-			at: string | null;
-		}
-	>();
+	const data = await sql("select * from data where user = ?", [userId]).first<RawSQLUserData>();
 	if (!data) return null;
 
-	if (data.version === 1) {
-		try {
-			const oldData = JSON.parse(data.sync) as v1UserData;
-			const newData = await compressData({
-				plugins: Object.fromEntries(
-					oldData.plugins.map((p) => [
-						p.id,
-						{
-							enabled: p.enabled,
-							storage: JSON.stringify(p.options),
-						},
-					]),
-				),
-				themes: Object.fromEntries(
-					oldData.themes.map((t) => [t.id, { enabled: t.enabled }]),
-				),
-				fonts: {
-					installed: {},
-					custom: [],
-				},
-			});
-
-			const at = new Date().toISOString();
-			void saveUserData(userId, newData, at);
-			return { data: newData, at };
-		} catch (e) {
-			logger.error("Data migration v2 failed", { userId, error: e });
-			throw new Error(`Failed to migrate your data to v2: ${String(e)}`);
-		}
-	} else return { data: data.sync, at: data.at ?? new Date().toISOString() };
+	return await migrateUserData(data, saveUserData);
 }
