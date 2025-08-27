@@ -29,12 +29,14 @@ app.use(async function errorResponseHandler(c, next) {
 		logger.error(`Server error on ${c.req.method} ${c.req.path}`, {
 			statusCode: c.res.status,
 			userId: c.get("user")?.userId ?? null,
+			targetId: c.req.param("id") ?? null,
 			response: await c.res.clone().text(),
 		});
 	} else if (c.res.status === HttpStatus.BAD_REQUEST) {
 		logger.warn(`Client error on ${c.req.method} ${c.req.path}`, {
 			statusCode: c.res.status,
 			userId: c.get("user")?.userId ?? null,
+			targetId: c.req.param("id") ?? null,
 			response: await c.res.clone().text(),
 		});
 	}
@@ -44,6 +46,7 @@ app.use(async function errorResponseHandler(c, next) {
 app.onError(function errorHandler(error, c) {
 	logger.error("Uncaught error", {
 		userId: c.get("user")?.userId ?? null,
+		targetId: c.req.param("id") ?? null,
 		error,
 	});
 	return c.text(`Unknown error occurred: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);

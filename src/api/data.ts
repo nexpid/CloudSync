@@ -4,6 +4,7 @@ import { validator } from "hono/validator";
 import { getUser, TokenPayload } from "src/lib/auth";
 import { deleteUserData, getUserData, saveUserData, UserDataSchema } from "src/lib/db";
 import { HttpStatus } from "src/lib/http-status";
+import { validate } from "src/lib/snowflake";
 import { validateSong } from "src/lib/songs/validate";
 import { prettifyError } from "zod";
 
@@ -15,8 +16,6 @@ interface HonoConfig {
 }
 
 const data = new Hono<HonoConfig>();
-
-const DISCORD_EPOCH = 1420070400000;
 
 // Authorization middleware
 data.use(async (c, next) => {
@@ -46,25 +45,9 @@ data.get("/", async function getData(c) {
 	return c.json(data?.data || null);
 });
 
-data.get("/:id", async function listData(c) {
+data.get("/:id", async function viewData(c) {
 	const id = c.req.param("id");
-
-	// validate snowflake based on https://github.com/vegeta897/snow-stamp/blob/8908d48bcee4883a7c4146bb17aa73b73a9009ba/src/convert.js
-	if (!Number.isInteger(id)) {
-		return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
-	}
-
-	const snowflake = BigInt(id) >> 22n;
-	if (snowflake < 2592000000n) {
-		return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
-	}
-
-	const biggest = BigInt(Date.now() - DISCORD_EPOCH) << 22n;
-	if (snowflake > biggest) {
-		return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
-	}
-
-	if (Number.isNaN(new Date(Number(snowflake) + DISCORD_EPOCH).getTime())) {
+	if (!validate(id)) {
 		return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
 	}
 
@@ -75,7 +58,7 @@ data.get("/:id", async function listData(c) {
 });
 
 data.put(
-	"/",
+	"/:id?",
 	validator("json", (value, c) => {
 		const parsed = UserDataSchema.safeParse(value);
 		if (parsed.error) {
@@ -88,14 +71,28 @@ data.put(
 		const userId = c.get("user").userId;
 		const data = c.req.valid("json");
 
+		const id = c.req.param("id") || userId;
+		if (!validate(id)) {
+			return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
+		}
+
 		const allValidated = await Promise.all(
 			data.map((song) => validateSong(song)),
 		);
 		if (!allValidated.every((x) => x === true)) {
-			return c.json(allValidated.map((valid, i) => [valid, data[i]]));
+			// Invalid song format
+			return c.json(allValidated.map((valid, i) => [valid, data[i]]), HttpStatus.BAD_REQUEST);
 		}
 
-		await saveUserData(userId, data, new Date().toISOString());
+		let time = Date.now();
+		if (id !== userId) {
+			if (!process.env.ADMIN_USER_ID || userId !== process.env.ADMIN_USER_ID) {
+				return c.text("Forbidden", HttpStatus.FORBIDDEN);
+			}
+			time = 0;
+		}
+		await saveUserData(id, data, new Date(time).toISOString());
+
 		return c.json(true);
 	},
 );
