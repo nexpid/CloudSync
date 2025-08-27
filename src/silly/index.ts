@@ -1,5 +1,7 @@
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm";
+import avatar from "assets/profile/avatar.svg";
+import banner from "assets/profile/banner.svg";
 import {
 	CDNRoutes,
 	ImageFormat,
@@ -8,10 +10,8 @@ import {
 	RouteBases,
 	Routes,
 } from "discord-api-types/v10";
+import { logger } from "lib/logger";
 
-import avatar from "../../assets/profile/avatar.svg";
-import banner from "../../assets/profile/banner.svg";
-import { logger } from "../lib/logger";
 import { SillyService } from "./service";
 
 const description = `Syncs your Revenge plugins, themes and fonts to the cloud!

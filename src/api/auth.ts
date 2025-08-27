@@ -5,10 +5,9 @@ import {
 	Routes,
 } from "discord-api-types/v10";
 import { Hono } from "hono";
-import { createToken } from "src/lib/auth";
-import { HttpStatus } from "src/lib/http-status";
-
-import { logger } from "../lib/logger";
+import { createToken } from "lib/auth";
+import { HttpStatus } from "lib/http-status";
+import { logger } from "lib/logger";
 
 type APIAccessTokenResult = RESTPostOAuth2AccessTokenResult | {
 	code?: number;
