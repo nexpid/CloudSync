@@ -8,6 +8,9 @@ on:
 jobs:
     sync:
         runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+            contents: write
         if: ${{ github.repository != 'nexpid/CloudSync' }}
 
         steps:
