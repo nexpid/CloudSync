@@ -17,4 +17,4 @@ jobs:
             with:
                 retain_days: 3
                 keep_minimum_runs: 5
-                delete_run_by_conclusion_pattern: success
+                delete_run_by_conclusion_pattern: cancelled,skipped,success
