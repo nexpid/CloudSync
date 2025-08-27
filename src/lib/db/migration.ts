@@ -1,4 +1,5 @@
-import { logger } from "../logger";
+import { logger } from "lib/logger";
+
 import { saveUserData, UserData } from ".";
 
 export const latestDataVersion = 2;

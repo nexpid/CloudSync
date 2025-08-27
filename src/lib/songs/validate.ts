@@ -1,5 +1,5 @@
-import { AppleMusicSong, Song, SoundcloudSong, SpotifySong } from "../db";
-import { HttpStatus } from "../http-status";
+import { AppleMusicSong, Song, SoundcloudSong, SpotifySong } from "lib/db";
+import { HttpStatus } from "lib/http-status";
 
 interface PartialSpotifyNextData {
 	props: {
