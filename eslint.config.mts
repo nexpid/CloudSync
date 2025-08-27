@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
+import typescriptPaths from "eslint-plugin-typescript-paths";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
@@ -21,6 +22,7 @@ export default defineConfig([
 			js,
 			"simple-import-sort": simpleImportSort,
 			"unused-imports": unusedImports,
+			"typescript-paths": typescriptPaths,
 		},
 		extends: ["js/recommended"],
 		languageOptions: {
@@ -47,9 +49,11 @@ export default defineConfig([
 	},
 	{
 		rules: {
-			"simple-import-sort/imports": "error",
-			"simple-import-sort/exports": "error",
 			"unused-imports/no-unused-imports": "error",
+			"simple-import-sort/imports": "warn",
+			"simple-import-sort/exports": "warn",
+			"typescript-paths/absolute-import": ["warn", { enableAlias: false }],
+			"typescript-paths/absolute-parent-import": ["warn", { preferPathOverBaseUrl: true }],
 
 			"@typescript-eslint/dot-notation": "error",
 			"@typescript-eslint/no-unused-vars": ["error", {
