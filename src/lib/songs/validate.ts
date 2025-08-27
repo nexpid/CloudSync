@@ -1,6 +1,18 @@
 import { AppleMusicSong, Song, SoundcloudSong, SpotifySong } from "../db";
 import { HttpStatus } from "../http-status";
 
+interface PartialSpotifyNextData {
+	props: {
+		pageProps: {
+			state?: {
+				data?: {
+					entity?: unknown;
+				};
+			};
+		};
+	};
+}
+
 const validationCache = new Map<string, number | true>();
 
 export const services = {
@@ -13,9 +25,9 @@ export const services = {
 			const nextData = res
 				.split("__NEXT_DATA__\" type=\"application/json\">")[1]
 				.split("</script")[0];
-			const json = JSON.parse(nextData);
+			const data = JSON.parse(nextData) as PartialSpotifyNextData;
 
-			return json.props.pageProps.state?.data?.entity
+			return data.props.pageProps.state?.data?.entity
 				? true
 				: HttpStatus.BAD_REQUEST;
 		} catch {
@@ -42,7 +54,7 @@ export async function validateSong(song: Song) {
 	const hash = song.service + song.type + song.id;
 	if (validationCache.has(hash)) return validationCache.get(hash);
 
-	const res = await services[song.service](song as any);
+	const res = await services[song.service](song as never);
 	validationCache.set(hash, res);
 	return res;
 }

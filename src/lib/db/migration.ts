@@ -20,7 +20,7 @@ export interface SQLUserData {
 	at: string;
 }
 
-export async function migrateUserData(
+export function migrateUserData(
 	data: RawSQLUserData,
 	onMigrate?: typeof saveUserData,
 ) {

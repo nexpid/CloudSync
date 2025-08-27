@@ -100,5 +100,5 @@ export async function retrieveUserData(
 	const data = await sql("select * from data where user = ?", [userId]).first<RawSQLUserData>();
 	if (!data) return null;
 
-	return await migrateUserData(data, saveUserData);
+	return migrateUserData(data, saveUserData);
 }
