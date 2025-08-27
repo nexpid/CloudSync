@@ -11,11 +11,10 @@ jobs:
         permissions:
             actions: write
             contents: read
-        if: ${{ github.repository != 'nexpid/CloudSync' }}
 
         steps:
           - uses: Mattraks/delete-workflow-runs@v2
             with:
                 retain_days: 3
                 keep_minimum_runs: 5
-                delete_run_by_conclusion_pattern: success
+                delete_run_by_conclusion_pattern: cancelled,skipped,success
