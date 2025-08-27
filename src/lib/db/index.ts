@@ -39,7 +39,7 @@ export type Song = z.infer<typeof Song>;
 
 // api types
 
-export const UserDataSchema = z.array(Song).max(6);
+export const UserDataSchema = z.array(Song).max(IS_PRODUCTION ? 6 : 1000);
 export type UserData = Song[];
 
 export type ApiUserData = {
