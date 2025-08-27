@@ -11,7 +11,6 @@ jobs:
         permissions:
             actions: write
             contents: read
-        if: ${{ github.repository != 'nexpid/CloudSync' }}
 
         steps:
           - uses: Mattraks/delete-workflow-runs@v2
