@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "cloud-sync",
+      "name": "song-spotlight",
       "dependencies": {
         "@hono-rate-limiter/cloudflare": "^0.2.2",
         "discord-api-types": "^0.38.21",

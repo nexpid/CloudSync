@@ -18,11 +18,7 @@ A ratelimit of **max 20 requests/10s per user** is enforced on any route which r
 
 ### Data format
 
-The format of the data Cloud Sync saves. Can be viewed [here](./src/lib/db/index.ts).
-
-### Compressed data format
-
-A custom base64 brotli compressed format of [the data](#data-format) that's used for storage.
+The format of the data Song Spotlight saves. Can be viewed [here](./src/lib/db/index.ts).
 
 ## Routes
 
@@ -41,6 +37,10 @@ A custom base64 brotli compressed format of [the data](#data-format) that's used
     - 🟢 **`GET`** `/api/data` [🔒](#authentication)
       - Returns **`200`** `OK` with [the saved data](#data-format) (includes a `Last-Modified` header) on success
       - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
+    - 🟢 **`GET`** `/api/data/:id` [🔒](#authentication)
+      - Requires an `id` path parameter in the form of a Discord user id [Snowflake](https://discord.com/developers/docs/reference#snowflakes)
+      - Returns **`200`** `OK` with [the user's saved data](#data-format) (includes a `Last-Modified` header) on success
+      - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
     - 🟠 **`PUT`** `/api/data` [🔒](#authentication)
       - Requires an `application/json` body in the format of [saved data](#data-format)
       - Returns **`200`** `OK` with `true` on success
@@ -49,12 +49,3 @@ A custom base64 brotli compressed format of [the data](#data-format) that's used
     - 🔴 **`DELETE`** `/api/data` [🔒](#authentication)
       - Returns **`200`** `OK` with `true` on success
       - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
-    - 🟢 **`GET`** `/api/data/raw` [🔒](#authentication)
-      - Returns the raw [compressed saved data](#compressed-data-format)
-      - Returns **`200`** `OK` with `true` (includes `Content-Disposition` and `Last-Modified` headers) on success
-      - Returns **`204`** `NO CONTENT` on no content
-      - Returns **`500`** `INTERNAL SERVER ERROR` on unknown error
-    - 🟣 **`POST`** `/api/data/decompress` [🔒](#authentication)
-      - Turns [compressed saved data](#compressed-data-format) in the `body` into normal [saved data](#data-format)
-      - Returns **`200`** `OK` with [saved data](#data-format) on success
-      - Returns **`400`** `BAD REQUEST` on invalid body

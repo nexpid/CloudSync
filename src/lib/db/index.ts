@@ -1,43 +1,46 @@
 import { z } from "zod";
 
-import { compressData, decompressData, latestDataVersion } from "./conversion";
-import { migrateUserData, RawSQLUserData } from "./migration";
+import { latestDataVersion, migrateUserData, RawSQLUserData } from "./migration";
 
-export const UserDataSchema = z.object({
-	plugins: z.record(
-		z.url(),
-		z.object({
-			enabled: z.boolean(),
-			storage: z
-				.custom<string | undefined>((data) => {
-					if (typeof data !== "string") return false;
-					try {
-						JSON.parse(data);
-						return true;
-					} catch {
-						return false;
-					}
-				}, "Plugin storage must be valid JSON")
-				.optional(),
-		}),
-	),
-	themes: z.record(
-		z.url(),
-		z.object({
-			enabled: z.boolean(),
-		}),
-	),
-	fonts: z.object({
-		installed: z.record(
-			z.url(),
-			z.object({
-				enabled: z.boolean(),
-			}),
-		),
-		custom: z.array(z.record(z.string(), z.any())),
-	}),
+// song types
+const SpotifySong = z.object({
+	service: z.literal("spotify"),
+	type: z.union([
+		z.literal("track"),
+		z.literal("album"),
+		z.literal("playlist"),
+		z.literal("artist"),
+	]),
+	id: z.string(),
 });
-export type UserData = z.infer<typeof UserDataSchema>;
+export type SpotifySong = z.infer<typeof SpotifySong>;
+
+const SoundcloudSong = z.object({
+	service: z.literal("soundcloud"),
+	type: z.union([z.literal("user"), z.literal("track"), z.literal("playlist")]),
+	id: z.string(),
+});
+export type SoundcloudSong = z.infer<typeof SoundcloudSong>;
+
+const AppleMusicSong = z.object({
+	service: z.literal("applemusic"),
+	type: z.union([
+		z.literal("artist"),
+		z.literal("song"),
+		z.literal("album"),
+		z.literal("playlist"),
+	]),
+	id: z.string(),
+});
+export type AppleMusicSong = z.infer<typeof AppleMusicSong>;
+
+const Song = z.union([SpotifySong, SoundcloudSong, AppleMusicSong]);
+export type Song = z.infer<typeof Song>;
+
+// api types
+
+export const UserDataSchema = z.array(Song).max(6);
+export type UserData = Song[];
 
 export type ApiUserData = {
 	data: UserData;
@@ -58,15 +61,15 @@ export function sql(
 
 export async function saveUserData(
 	userId: string,
-	data: string | UserData,
+	data: UserData,
 	at: string,
 ) {
 	return await sql(
-		"insert or replace into data (user, version, sync, at) values (?, ?, ?, ?)",
+		"insert or replace into data (user, version, songs, at) values (?, ?, ?, ?)",
 		[
 			userId,
 			String(latestDataVersion),
-			typeof data === "string" ? data : await compressData(data),
+			JSON.stringify(data),
 			at,
 		],
 	).run();
@@ -80,14 +83,13 @@ export async function getUserData(userId: string): Promise<ApiUserData> {
 	const data = await retrieveUserData(userId);
 	if (!data) {
 		return {
-			data: { plugins: {}, themes: {}, fonts: { installed: {}, custom: [] } },
+			data: [],
 			at: new Date().toISOString(),
 		};
 	}
 
-	const decomp = await decompressData(data.data);
 	return {
-		data: decomp,
+		data: JSON.parse(data.data) as UserData,
 		at: data.at,
 	};
 }

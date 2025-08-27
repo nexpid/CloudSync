@@ -1,23 +1,18 @@
 import { logger } from "../logger";
-import { saveUserData } from ".";
-import { compressData, latestDataVersion } from "./conversion";
+import { saveUserData, UserData } from ".";
 
-interface v1UserData {
-	themes: {
-		id: string;
-		enabled: boolean;
-	}[];
-	plugins: {
-		id: string;
-		enabled: boolean;
-		options: object;
-	}[];
-}
+export const latestDataVersion = 2;
+
+type v1UserData = ({
+	service: string;
+	type: string;
+	id: string;
+} | null)[];
 
 export interface RawSQLUserData {
 	user: string;
 	version: 1 | 2;
-	sync: string;
+	songs: string;
 	at: string | null;
 }
 export interface SQLUserData {
@@ -27,40 +22,23 @@ export interface SQLUserData {
 
 export async function migrateUserData(
 	data: RawSQLUserData,
-	onMigrate: typeof saveUserData,
+	onMigrate?: typeof saveUserData,
 ) {
 	if (data.version === latestDataVersion) {
 		return {
-			data: data.sync,
-			at: new Date().toISOString(),
+			data: data.songs,
+			at: data.at ?? new Date().toISOString(),
 		};
 	} else if (data.version === 1) {
 		try {
-			const oldData = JSON.parse(data.sync) as v1UserData;
-			const newData = await compressData({
-				plugins: Object.fromEntries(
-					oldData.plugins.map(({ id, enabled, options }) => [
-						id,
-						{
-							enabled,
-							storage: JSON.stringify(options),
-						},
-					]),
-				),
-				themes: Object.fromEntries(
-					oldData.themes.map(({ id, enabled }) => [id, { enabled }]),
-				),
-				fonts: {
-					installed: {},
-					custom: [],
-				},
-			});
+			const oldData = JSON.parse(data.songs) as v1UserData;
+			const newData = oldData.filter((x) => x !== null).slice(0, 6) as UserData;
 
 			const at = new Date().toISOString();
-			void onMigrate(data.user, newData, at);
+			void onMigrate?.(data.user, newData, at);
 
 			return {
-				data: newData,
+				data: JSON.stringify(newData),
 				at,
 			};
 		} catch (error) {
@@ -74,7 +52,7 @@ export async function migrateUserData(
 		logger.error("Unkown data version", {
 			userId: data.user,
 			version: data.version,
-			sync: data.sync.slice(0, 20),
+			sync: data.songs.slice(0, 20),
 			at: data.at,
 		});
 		throw new Error("Your save data (somehow) uses an unknown version. Please try again later");

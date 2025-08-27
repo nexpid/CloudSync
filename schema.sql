@@ -1,1 +1,1 @@
-CREATE TABLE IF NOT EXISTS data ("user" text PRIMARY KEY, "version" integer, "sync" text, "at" text);
+CREATE TABLE IF NOT EXISTS data ("user" text PRIMARY KEY, "version" integer, "songs" text, "at" text);

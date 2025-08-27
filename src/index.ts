@@ -51,7 +51,7 @@ app.onError(function errorHandler(error, c) {
 
 app.get(
 	"/",
-	(c) => c.redirect("https://github.com/nexpid/CloudSync", HttpStatus.PERMANENT_REDIRECT),
+	(c) => c.redirect("https://github.com/nexpid-labs/SongSpotlight", HttpStatus.PERMANENT_REDIRECT),
 );
 
 app.route("/api", api);

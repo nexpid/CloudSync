@@ -14,10 +14,9 @@ import banner from "../../assets/profile/banner.svg";
 import { logger } from "../lib/logger";
 import { SillyService } from "./service";
 
-const description = `Syncs your Revenge plugins, themes and fonts to the cloud!
-« https://github.com/nexpid/CloudSync »
-« https://revenge.nexpid.xyz/cloud-sync »
-« https://discord.gg/ddcQf3s2Uq »`;
+const description = `Show off songs on your Discord profile!
+« https://github.com/nexpid-labs/SongSpotlight »
+« https://revenge.nexpid.xyz/song-spotlight »`;
 
 export async function runSilly() {
 	if (!process.env.CLIENT_TOKEN) {
@@ -38,6 +37,7 @@ export async function runSilly() {
 			new Resvg(
 				avatar
 					.replace(/#FF0000/g, colors.bg)
+					.replace(/#FFFF00/g, colors.bgWhiter)
 					.replace(/#00FF00/g, colors.cloud)
 					.replace(/#0000FF/g, colors.cloudOutline),
 				{
@@ -53,6 +53,7 @@ export async function runSilly() {
 			new Resvg(
 				banner
 					.replace(/#FF0000/g, colors.bg)
+					.replace(/#FFFF00/g, colors.bgWhiter)
 					.replace(/#00FF00/g, colors.cloud)
 					.replace(/#0000FF/g, colors.cloudOutline),
 				{
