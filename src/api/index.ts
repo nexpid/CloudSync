@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { getUser } from "src/lib/auth";
-import { HttpStatus } from "src/lib/http-status";
-import { logger } from "src/lib/logger";
+import { getUser } from "lib/auth";
+import { HttpStatus } from "lib/http-status";
+import { logger } from "lib/logger";
 
 import auth from "./auth";
 import data from "./data";

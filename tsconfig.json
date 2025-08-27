@@ -9,7 +9,6 @@
 		"target": "ES2021",
 		"sourceMap": true,
 		"outDir": "./dist",
-		"baseUrl": "./",
 		"incremental": true,
 		"skipLibCheck": true,
 		"strictNullChecks": false,
@@ -19,7 +18,15 @@
 		"types": [
 			"./worker-configuration.d.ts",
 			"node"
-		]
+		],
+		"baseUrl": "./",
+		"paths": {
+			"assets": ["./assets/*"],
+			"api/*": ["./src/api/*"],
+			"lib/*": ["./src/lib/*"],
+			"silly/*": ["./src/silly/*"],
+			"@/*": ["./src/*"]
+		}
 	},
 	"exclude": [
 		"./dist",

@@ -22,12 +22,12 @@ export interface SQLUserData {
 
 export function migrateUserData(
 	data: RawSQLUserData,
-	onMigrate?: typeof saveUserData,
-) {
+	onMigrate: typeof saveUserData,
+): SQLUserData {
 	if (data.version === latestDataVersion) {
 		return {
 			data: data.songs,
-			at: data.at ?? new Date().toISOString(),
+			at: data.at,
 		};
 	} else if (data.version === 1) {
 		try {
