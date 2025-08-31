@@ -30,5 +30,8 @@
 			"structs/*": ["./structs/*"],
 			"@": ["../package.json"]
 		}
-	}
+	},
+	"exclude": [
+		"./dist"
+	]
 }
