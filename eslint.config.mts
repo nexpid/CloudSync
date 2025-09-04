@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-import { ESLint } from "eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import typescriptPaths from "eslint-plugin-typescript-paths";
@@ -7,7 +6,6 @@ import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-// @ts-expect-error import.meta is allowed
 const root = import.meta.dirname;
 const pattern = `{js,mjs,cjs,ts,mts,cts}`;
 
@@ -42,7 +40,7 @@ export default defineConfig([
 	{
 		files: [`src/**/*.${pattern}`],
 		plugins: {
-			"typescript-paths": typescriptPaths as ESLint.Plugin,
+			"typescript-paths": typescriptPaths,
 		},
 		rules: {
 			"typescript-paths/absolute-import": ["warn", { enableAlias: false }],

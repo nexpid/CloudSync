@@ -1,46 +1,6 @@
-import { z } from "zod";
+import { UserData } from "@song-spotlight/api/structs";
 
 import { latestDataVersion, migrateUserData, RawSQLUserData } from "./migration";
-
-// song types
-const SpotifySong = z.object({
-	service: z.literal("spotify"),
-	type: z.union([
-		z.literal("track"),
-		z.literal("album"),
-		z.literal("playlist"),
-		z.literal("artist"),
-	]),
-	id: z.string(),
-});
-export type SpotifySong = z.infer<typeof SpotifySong>;
-
-const SoundcloudSong = z.object({
-	service: z.literal("soundcloud"),
-	type: z.union([z.literal("user"), z.literal("track"), z.literal("playlist")]),
-	id: z.string(),
-});
-export type SoundcloudSong = z.infer<typeof SoundcloudSong>;
-
-const AppleMusicSong = z.object({
-	service: z.literal("applemusic"),
-	type: z.union([
-		z.literal("artist"),
-		z.literal("song"),
-		z.literal("album"),
-		z.literal("playlist"),
-	]),
-	id: z.string(),
-});
-export type AppleMusicSong = z.infer<typeof AppleMusicSong>;
-
-const Song = z.union([SpotifySong, SoundcloudSong, AppleMusicSong]);
-export type Song = z.infer<typeof Song>;
-
-// api types
-
-export const UserDataSchema = z.array(Song).max(IS_PRODUCTION ? 6 : 1000);
-export type UserData = Song[];
 
 export type ApiUserData = {
 	data: UserData;

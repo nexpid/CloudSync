@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@hono-rate-limiter/cloudflare": "^0.2.2",
+		"@song-spotlight/api": "1.1.2",
 		"discord-api-types": "^0.38.21",
 		"hono": "^4.9.4",
 		"jose": "^6.0.13",
@@ -26,7 +27,7 @@
 		"globals": "^16.3.0",
 		"typescript": "^5.9.2",
 		"typescript-eslint": "^8.40.0",
-		"wrangler": "^4.33.1"
+		"wrangler": "^4.34.0"
 	},
 	"optionalDependencies": {
 		"@resvg/resvg-wasm": "^2.6.2"
