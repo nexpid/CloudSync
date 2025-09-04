@@ -1,8 +1,7 @@
 import type { Song } from "structs/types";
 
 import { clean } from "./common";
-import type { SongParser, SongService } from "./helpers";
-import type { RenderSongInfo } from "./types";
+import type { RenderSongInfo, SongParser, SongService } from "./helpers";
 
 // introducing... a pointer! resolves the circular dependency
 export const $ = {
@@ -15,7 +14,6 @@ function sid(song: Song) {
 }
 
 const parseCache = new Map<string, Song | null>();
-const linkCache = new Map<string, string | null>();
 export async function parseLink(link: string): Promise<Song | null> {
 	const cleaned = clean(link);
 	if (parseCache.has(cleaned)) return parseCache.get(cleaned)!;
@@ -32,7 +30,6 @@ export async function parseLink(link: string): Promise<Song | null> {
 	}
 
 	parseCache.set(cleaned, song);
-	if (song) linkCache.set(sid(song), cleaned);
 	return song;
 }
 
@@ -49,23 +46,15 @@ export async function renderSong(song: Song): Promise<RenderSongInfo | null> {
 	return info;
 }
 
-export async function toLink(song: Song): Promise<string | null> {
+const validateCache = new Map<string, boolean>();
+export async function validateSong(song: Song): Promise<boolean> {
 	const id = sid(song);
-	if (linkCache.has(id)) return linkCache.get(id)!;
+	if (validateCache.has(id)) return validateCache.get(id)!;
 
-	let link: string | null = null;
+	let valid = false;
 	const service = $.services.find(x => x.name === song.service);
-	if (service?.types.includes(song.type)) link = await service.from(song.type, song.id);
+	if (service?.types.includes(song.type)) valid = await service.validate(song.type, song.id);
 
-	const cleaned = link ? clean(link) : link;
-
-	linkCache.set(id, cleaned);
-	if (cleaned) {
-		parseCache.set(cleaned, {
-			service: song.service,
-			type: song.type,
-			id: song.id,
-		});
-	}
-	return link;
+	validateCache.set(id, valid);
+	return valid;
 }

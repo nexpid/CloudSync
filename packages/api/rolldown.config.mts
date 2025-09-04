@@ -13,5 +13,6 @@ export default {
 	output: {
 		entryFileNames: "[name].js",
 		format: "esm",
+		sourcemap: "hidden",
 	},
 } as ConfigExport;

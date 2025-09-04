@@ -1,7 +1,6 @@
 import { PLAYLIST_LIMIT, request } from "handlers/common";
 import { parseLink } from "handlers/finders";
-import { type SongService } from "handlers/helpers";
-import type { RenderInfoBase, RenderInfoEntryBased } from "handlers/types";
+import { type RenderInfoBase, type RenderInfoEntryBased, type SongService } from "handlers/helpers";
 
 interface oEmbedData {
 	html: string;
@@ -93,8 +92,7 @@ export const soundcloud: SongService = {
 		if (host === "on.soundcloud.com") {
 			if (!path[0] || path[1]) return null;
 			const { url, status } = await request({
-				// FIX: soundcloud HATES trailing slashes
-				url: link.slice(0, -1),
+				url: link,
 			});
 			return status === 200 ? await parseLink(url) : null;
 		} else {
@@ -111,8 +109,7 @@ export const soundcloud: SongService = {
 				url: "https://soundcloud.com/oembed",
 				query: {
 					format: "json",
-					// FIX: soundcloud HATES trailing slashes
-					url: link.slice(0, -1),
+					url: link,
 				},
 			})).json as oEmbedData;
 			if (!data?.html) return null;
@@ -135,7 +132,7 @@ export const soundcloud: SongService = {
 	},
 	async render(type, id) {
 		const data = await parseWidget(type, id, false);
-		if (!data.id) return null;
+		if (!data?.id) return null;
 
 		const base: RenderInfoBase = {
 			label: data.title ?? data.username,
@@ -193,10 +190,7 @@ export const soundcloud: SongService = {
 			list,
 		};
 	},
-	async from(type, id) {
-		const data = await parseWidget(type, id, false);
-		if (!data.id) return null;
-
-		return data.permalink_url;
+	async validate(type, id) {
+		return (await parseWidget(type, id, false))?.id !== undefined;
 	},
 };

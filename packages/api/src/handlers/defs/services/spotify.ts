@@ -1,6 +1,5 @@
 import { parseNextData, PLAYLIST_LIMIT, request } from "handlers/common";
-import { type SongService } from "handlers/helpers";
-import type { RenderInfoBase, RenderInfoEntryBased } from "handlers/types";
+import { type RenderInfoBase, type RenderInfoEntryBased, type SongService } from "handlers/helpers";
 
 interface Next {
 	props: {
@@ -54,13 +53,9 @@ async function parseEmbed(type: string, id: string) {
 	);
 }
 
-// TODO put this in the actual object, somehow
-function from(type: string, id: string) {
-	return `https://open.spotify.com/${type}/${id}`;
-}
 function fromUri(uri: string) {
 	const [sanityCheck, type, id] = uri.split(":");
-	if (sanityCheck === "spotify" && type && id) return from(type, id);
+	if (sanityCheck === "spotify" && type && id) return `https://open.spotify.com/${type}/${id}`;
 	else return null;
 }
 
@@ -74,8 +69,7 @@ export const spotify: SongService = {
 		const [type, id, third] = path;
 		if (!type || !this.types.includes(type as never) || !id || third) return null;
 
-		const title = (await parseEmbed(type, id))?.props?.pageProps?.title;
-		if (title) return null;
+		if (!await this.validate(type, id)) return null;
 
 		return {
 			service: this.name,
@@ -139,5 +133,7 @@ export const spotify: SongService = {
 			};
 		}
 	},
-	from,
+	async validate(type, id) {
+		return !(await parseEmbed(type, id))?.props?.pageProps?.title;
+	},
 };

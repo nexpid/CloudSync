@@ -1,7 +1,6 @@
 import { PLAYLIST_LIMIT, request } from "handlers/common";
-import type { SongService } from "handlers/helpers";
+import type { RenderInfoBase, SongService } from "handlers/helpers";
 
-import type { RenderInfoBase } from "../../types";
 import { makeCache } from "../cache";
 
 interface APIDataEntry {
@@ -139,7 +138,9 @@ export const applemusic: SongService = {
 			}),
 		};
 	},
-	from(type, id) {
-		return `https://music.apple.com/us/${type}/${defaultName}/${id}`;
+	async validate(type, id) {
+		return (await request({
+			url: `https://music.apple.com/${geo}/${type}/${defaultName}/${id}`,
+		})).status === 200;
 	},
 };
