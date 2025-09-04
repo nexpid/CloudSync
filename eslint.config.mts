@@ -7,7 +7,6 @@ import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-// @ts-expect-error import.meta is allowed
 const root = import.meta.dirname;
 const pattern = `{js,mjs,cjs,ts,mts,cts}`;
 

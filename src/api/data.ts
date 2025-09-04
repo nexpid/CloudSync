@@ -1,11 +1,12 @@
 import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
+import { validateSong } from "@song-spotlight/api/handlers";
+import { UserDataSchema } from "@song-spotlight/api/structs";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
 import { getUser, TokenPayload } from "lib/auth";
-import { deleteUserData, getUserData, saveUserData, UserDataSchema } from "lib/db";
+import { deleteUserData, getUserData, saveUserData } from "lib/db";
 import { HttpStatus } from "lib/http-status";
 import { validate } from "lib/snowflake";
-import { validateSong } from "lib/songs/validate";
 import { prettifyError } from "zod";
 
 interface HonoConfig {
@@ -15,6 +16,7 @@ interface HonoConfig {
 	Bindings: Env;
 }
 
+const songLimit = IS_PRODUCTION ? 6 : 1000;
 const data = new Hono<HonoConfig>();
 
 // Authorization middleware
@@ -60,7 +62,7 @@ data.get("/:id", async function viewData(c) {
 data.put(
 	"/:id?",
 	validator("json", (value, c) => {
-		const parsed = UserDataSchema.safeParse(value);
+		const parsed = UserDataSchema.max(songLimit).safeParse(value);
 		if (parsed.error) {
 			return c.text(prettifyError(parsed.error), HttpStatus.BAD_REQUEST);
 		}
@@ -76,12 +78,14 @@ data.put(
 			return c.text("User ID is not a valid snowflake", HttpStatus.BAD_REQUEST);
 		}
 
-		const allValidated = await Promise.all(
+		const allValidated = await Promise.allSettled(
 			data.map((song) => validateSong(song)),
 		);
-		if (!allValidated.every((x) => x === true)) {
-			// Invalid song format
-			return c.json(allValidated.map((valid, i) => [valid, data[i]]), HttpStatus.BAD_REQUEST);
+		if (!allValidated.every((x) => x.status === "fulfilled" && x.value)) {
+			return c.json(allValidated.map((v, i) => ({
+				song: data[i],
+				status: v.status === "fulfilled" ? !!v.value : "error",
+			})));
 		}
 
 		let time = Date.now();

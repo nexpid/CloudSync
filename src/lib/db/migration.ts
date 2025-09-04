@@ -1,6 +1,7 @@
+import { UserData } from "@song-spotlight/api/structs";
 import { logger } from "lib/logger";
 
-import { saveUserData, UserData } from ".";
+import { saveUserData } from ".";
 
 export const latestDataVersion = 2;
 

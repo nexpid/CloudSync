@@ -1,10 +1,11 @@
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "songspotlight",
 	"main": "src/index.ts",
 	"compatibility_flags": [
 		"nodejs_compat",
 	],
-	"compatibility_date": "2025-08-24",
+	"compatibility_date": "2025-08-31",
 	"rules": [
 		{
 			"type": "CompiledWasm",
