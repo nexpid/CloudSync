@@ -1,19 +1,18 @@
 import { cloudflareRateLimiter } from "@hono-rate-limiter/cloudflare";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import { getUser, TokenPayload } from "src/lib/auth";
+import { getUser, TokenPayload } from "lib/auth";
 import {
 	deleteUserData,
 	getUserData,
 	retrieveUserData,
 	saveUserData,
 	UserDataSchema,
-} from "src/lib/db";
-import { decompressData } from "src/lib/db/conversion";
-import { HttpStatus } from "src/lib/http-status";
+} from "lib/db";
+import { decompressData } from "lib/db/conversion";
+import { HttpStatus } from "lib/http-status";
+import { logger } from "lib/logger";
 import { prettifyError } from "zod";
-
-import { logger } from "../lib/logger";
 
 interface HonoConfig {
 	Variables: {
