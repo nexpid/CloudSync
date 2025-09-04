@@ -14,6 +14,7 @@ function sid(song: Song) {
 }
 
 const parseCache = new Map<string, Song | null>();
+const validateCache = new Map<string, boolean>();
 export async function parseLink(link: string): Promise<Song | null> {
 	const cleaned = clean(link);
 	if (parseCache.has(cleaned)) return parseCache.get(cleaned)!;
@@ -30,6 +31,7 @@ export async function parseLink(link: string): Promise<Song | null> {
 	}
 
 	parseCache.set(cleaned, song);
+	if (song) validateCache.set(sid(song), true);
 	return song;
 }
 
@@ -43,10 +45,10 @@ export async function renderSong(song: Song): Promise<RenderSongInfo | null> {
 	if (service?.types.includes(song.type)) info = await service.render(song.type, song.id);
 
 	renderCache.set(id, info);
+	if (song) validateCache.set(sid(song), true);
 	return info;
 }
 
-const validateCache = new Map<string, boolean>();
 export async function validateSong(song: Song): Promise<boolean> {
 	const id = sid(song);
 	if (validateCache.has(id)) return validateCache.get(id)!;

@@ -1,6 +1,6 @@
 {
 	"name": "@song-spotlight/api",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"description": "Song Spotlight API types and song validation module",
 	"type": "module",
 	"scripts": {

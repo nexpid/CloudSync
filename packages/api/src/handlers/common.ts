@@ -18,7 +18,7 @@ export function clean(link: string) {
 		url.hash =
 			"";
 
-	return url.toString().replace(/\/?$/, "/");
+	return url.toString().replace(/\/?$/, "");
 }
 
 export async function request(options: RequestOptions) {
@@ -36,13 +36,17 @@ export async function request(options: RequestOptions) {
 
 	const res = await fetch(url, {
 		method: options.method,
-		cache: "force-cache",
 		redirect: "follow",
 		headers: {
 			"accept": "*/*",
 			"user-agent": `song-spotlight/v${version}`,
 			"cache-control": "public, max-age=3600",
 			...options.headers,
+		},
+		// @ts-expect-error Untyped cloudflare workers cache type
+		cf: {
+			cacheTtl: 3600,
+			cacheEverything: true,
 		},
 		body: options.body as never,
 	});
