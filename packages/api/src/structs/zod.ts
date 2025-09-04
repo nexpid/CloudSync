@@ -1,9 +1,13 @@
 import { services } from "handlers/core";
-import type { core, ZodLiteral, ZodObject, ZodString, ZodUnion } from "zod";
+import type { core, ZodLiteral, ZodObject, ZodString } from "zod";
 import z from "zod";
 
 type SongDef = ZodObject<
-	{ service: ZodLiteral<string>; type: ZodUnion<ZodLiteral<string>[]>; id: ZodString },
+	{
+		service: ZodLiteral<string>;
+		type: ZodLiteral<string>; // this is a ZodUnion, but casting it as that type lead to some issues with typescript
+		id: ZodString;
+	},
 	core.$strip
 >;
 
@@ -15,7 +19,7 @@ export const SongSchema = z.discriminatedUnion(
 			type: z.union(service.types.map(type => z.literal(type))),
 			id: z.string(),
 		})
-	) as [SongDef],
+	) as unknown as [SongDef],
 );
 
 export const UserDataSchema = z.array(SongSchema).max(6);
