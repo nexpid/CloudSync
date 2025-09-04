@@ -3,7 +3,7 @@
 > [!NOTE]
 > If you still have the `CLOUDFLARE_D1_DATABASE_ID`, `CLOUDFLARE_D1_BEARER_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` variables in `.dev.vars`, you can delete those and follow this guide instead
 
-Cloud Sync uses an SQL [D1 database](https://developers.cloudflare.com/d1/) with the name of `VendettaCloudSync`[^1] to store user data.
+Song Spotlight uses an SQL [D1 database](https://developers.cloudflare.com/d1/) with the name of `VendettaSongSpotlight`[^1] to store user data.
 
 ## Steps
 

@@ -18,11 +18,11 @@ A ratelimit of **max 20 requests/10s per user** is enforced on any route which r
 
 ### Data format
 
-The format of the data Cloud Sync saves. Can be viewed [here](./src/lib/db/index.ts).
+The format of the data Song Spotlight saves. Can be viewed [here](./src/lib/db/index.ts). In production, the maximum amount of entries (songs) allowed is **6**. During development, this limit is removed for easier testing.
 
-### Compressed data format
+### Invalid song format
 
-A custom base64 brotli compressed format of [the data](#data-format) that's used for storage.
+Format of `[status: number, song: Song][]`, where `status` indicates the **HTTP status code** of the corresponding song. Meaning a `status` of **`200`** `OK` means the song is valid, while any other status code signals that the song is invalid. You can view the code [here](./src/api/data.ts)
 
 ## Routes
 
@@ -39,22 +39,20 @@ A custom base64 brotli compressed format of [the data](#data-format) that's used
       - Returns **`400`** `BAD REQUEST` or **`500`** `INTERNAL SERVER ERROR` on an auth error
   - `/api/data`
     - 🟢 **`GET`** `/api/data` [🔒](#authentication)
-      - Returns **`200`** `OK` with [the saved data](#data-format) (includes a `Last-Modified` header) on success
+      - Returns **`200`** `OK` with [the saved songs](#data-format) (includes a `Last-Modified` header) on success
       - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
-    - 🟠 **`PUT`** `/api/data` [🔒](#authentication)
-      - Requires an `application/json` body in the format of [saved data](#data-format)
+    - 🟢 **`GET`** `/api/data/:id` [🔒](#authentication)
+      - Requires an `id` path parameter in the form of a Discord user id [Snowflake](https://discord.com/developers/docs/reference#snowflakes)
+      - Returns **`200`** `OK` with [the user's saved songs](#data-format) (includes a `Last-Modified` header) on success
+      - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
+    - 🟠 **`PUT`** `/api/data/:id?` [🔒](#authentication)
+      - Allows an optional `id` path parameter in the form of a Discord user id [Snowflake](https://discord.com/developers/docs/reference#snowflakes)
+        - If the provided `id` doesn't match the user's id, requires user to be `env.ADMIN_USER_ID`
+        - If user is indeed `env.ADMIN_USER_ID`, saves the body to `id` instead of the user's id
+      - Requires an `application/json` body in the format of [saved songs](#data-format)
       - Returns **`200`** `OK` with `true` on success
-      - Returns **`400`** `BAD REQUEST` with helpful zod error messages on invalid body
+      - Returns **`400`** `BAD REQUEST` with helpful zod error messages on invalid body (`string`) or [invalid songs](#invalid-song-format) (`json`)
       - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
     - 🔴 **`DELETE`** `/api/data` [🔒](#authentication)
       - Returns **`200`** `OK` with `true` on success
       - Returns **`500`** `INTERNAL SERVER ERROR` on an unknown server error
-    - 🟢 **`GET`** `/api/data/raw` [🔒](#authentication)
-      - Returns the raw [compressed saved data](#compressed-data-format)
-      - Returns **`200`** `OK` with `true` (includes `Content-Disposition` and `Last-Modified` headers) on success
-      - Returns **`204`** `NO CONTENT` on no content
-      - Returns **`500`** `INTERNAL SERVER ERROR` on unknown error
-    - 🟣 **`POST`** `/api/data/decompress` [🔒](#authentication)
-      - Turns [compressed saved data](#compressed-data-format) in the `body` into normal [saved data](#data-format)
-      - Returns **`200`** `OK` with [saved data](#data-format) on success
-      - Returns **`400`** `BAD REQUEST` on invalid body

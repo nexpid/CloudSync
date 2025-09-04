@@ -1,5 +1,6 @@
 {
-	"name": "cloudsync",
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "songspotlight",
 	"main": "src/index.ts",
 	"compatibility_flags": [
 		"nodejs_compat",
@@ -34,8 +35,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "VendettaCloudSync",
-			"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
+			"database_name": "VendettaSongSpotlight",
+			"database_id": "afee2d05-b13b-4c89-8501-84670cd08d2b",
 		},
 	],
 	"define": {

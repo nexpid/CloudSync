@@ -19,6 +19,7 @@ export class SillyService {
 	static getRandomColors() {
 		const colors = {
 			bg: "",
+			bgWhiter: "",
 			cloud: "",
 			cloudOutline: "",
 		};
@@ -51,6 +52,7 @@ export class SillyService {
 		);
 
 		colors.bg = hslToHex(bgH, bgS, bgL);
+		colors.bgWhiter = hslToHex(bgH, bgS, Math.min(bgL * 0.45, 100));
 
 		return colors;
 	}
