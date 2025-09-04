@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "songspotlight",
+	"name": "cloudsync",
 	"main": "src/index.ts",
 	"compatibility_flags": [
 		"nodejs_compat",
