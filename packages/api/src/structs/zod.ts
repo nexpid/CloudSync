@@ -22,4 +22,5 @@ export const SongSchema = z.discriminatedUnion(
 	) as unknown as [SongDef],
 );
 
-export const UserDataSchema = z.array(SongSchema).max(6);
+/** **UserDataSchema** does not have a limit by default */
+export const UserDataSchema = z.array(SongSchema);
