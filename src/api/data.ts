@@ -82,10 +82,13 @@ data.put(
 			data.map((song) => validateSong(song)),
 		);
 		if (!allValidated.every((x) => x.status === "fulfilled" && x.value)) {
-			return c.json(allValidated.map((v, i) => ({
-				song: data[i],
-				status: v.status === "fulfilled" ? !!v.value : "error",
-			})));
+			return c.json(
+				allValidated.map((v, i) => ({
+					song: data[i],
+					status: v.status === "fulfilled" ? !!v.value : "error",
+				})),
+				HttpStatus.BAD_REQUEST,
+			);
 		}
 
 		let time = Date.now();
