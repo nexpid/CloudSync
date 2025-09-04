@@ -1,25 +1,28 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"declaration": true,
-		"removeComments": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"allowSyntheticDefaultImports": true,
-		"target": "ES2021",
-		"sourceMap": true,
-		"outDir": "./dist",
-		"baseUrl": "./",
-		"incremental": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"strict": true,
 		"skipLibCheck": true,
+		"lib": [
+			"ESNext"
+		],
 		"strictNullChecks": false,
-		"noImplicitAny": false,
-		"strictBindCallApply": false,
-		"forceConsistentCasingInFileNames": false,
+		"jsx": "react-jsx",
+		"jsxImportSource": "hono/jsx",
 		"types": [
 			"./worker-configuration.d.ts",
 			"node"
-		]
+		],
+		"baseUrl": "./",
+		"paths": {
+			"assets": ["./assets/*"],
+			"api/*": ["./src/api/*"],
+			"lib/*": ["./src/lib/*"],
+			"silly/*": ["./src/silly/*"],
+			"@/*": ["./src/*"]
+		}
 	},
 	"exclude": [
 		"./dist",

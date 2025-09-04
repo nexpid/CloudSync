@@ -1,4 +1,5 @@
-import { logger } from "../logger";
+import { logger } from "lib/logger";
+
 import { saveUserData } from ".";
 import { compressData, latestDataVersion } from "./conversion";
 
@@ -28,11 +29,11 @@ export interface SQLUserData {
 export async function migrateUserData(
 	data: RawSQLUserData,
 	onMigrate: typeof saveUserData,
-) {
+): Promise<SQLUserData> {
 	if (data.version === latestDataVersion) {
 		return {
 			data: data.sync,
-			at: new Date().toISOString(),
+			at: data.at,
 		};
 	} else if (data.version === 1) {
 		try {

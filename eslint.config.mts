@@ -1,12 +1,13 @@
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
+import typescriptPaths from "eslint-plugin-typescript-paths";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-// @ts-expect-error import.meta is allowed
 const root = import.meta.dirname;
+const pattern = `{js,mjs,cjs,ts,mts,cts}`;
 
 export default defineConfig([
 	globalIgnores([
@@ -16,7 +17,7 @@ export default defineConfig([
 		"worker-configuration.d.ts",
 	]),
 	{
-		files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+		files: [`**/*.${pattern}`],
 		plugins: {
 			js,
 			"simple-import-sort": simpleImportSort,
@@ -28,12 +29,22 @@ export default defineConfig([
 		},
 	},
 	{
-		files: ["test/**/*.{js,mjs,cjs,ts,mts,cts}"],
+		files: [`test/**/*.${pattern}`],
 		languageOptions: {
 			globals: {
 				...globals.node,
 				Bun: false,
 			},
+		},
+	},
+	{
+		files: [`src/**/*.${pattern}`],
+		plugins: {
+			"typescript-paths": typescriptPaths,
+		},
+		rules: {
+			"typescript-paths/absolute-import": ["warn", { enableAlias: false }],
+			"typescript-paths/absolute-parent-import": ["warn", { preferPathOverBaseUrl: true }],
 		},
 	},
 	tseslint.configs.recommendedTypeChecked,
@@ -47,9 +58,9 @@ export default defineConfig([
 	},
 	{
 		rules: {
-			"simple-import-sort/imports": "error",
-			"simple-import-sort/exports": "error",
 			"unused-imports/no-unused-imports": "error",
+			"simple-import-sort/imports": "warn",
+			"simple-import-sort/exports": "warn",
 
 			"@typescript-eslint/dot-notation": "error",
 			"@typescript-eslint/no-unused-vars": ["error", {

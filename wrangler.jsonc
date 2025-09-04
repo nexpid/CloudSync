@@ -1,10 +1,11 @@
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "cloudsync",
 	"main": "src/index.ts",
 	"compatibility_flags": [
 		"nodejs_compat",
 	],
-	"compatibility_date": "2025-08-24",
+	"compatibility_date": "2025-09-04",
 	"rules": [
 		{
 			"type": "CompiledWasm",

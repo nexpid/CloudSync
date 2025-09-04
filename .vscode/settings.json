@@ -3,12 +3,6 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "always"
 	},
-	"json.schemas": [
-		{
-			"fileMatch": ["wrangler.jsonc"],
-			"url": "./node_modules/wrangler/config-schema.json"
-		}
-	],
 	"[javascript][typescript][json][markdown][toml]": {
 		"editor.defaultFormatter": "dprint.dprint"
 	}
