@@ -1,0 +1,32 @@
+diff --git a/wrangler-dist/cli.js b/wrangler-dist/cli.js
+index 1bc736c6f5a7bafa81efbe26a3c0a2173ea273b5..83c4bac7e95bf3256cdcd8fa9478cb6452c0bfb4 100644
+--- a/wrangler-dist/cli.js
++++ b/wrangler-dist/cli.js
+@@ -274071,13 +274071,7 @@ declare namespace NodeJS {
+     }
+     const perEnvContent = perEnvInterfaces.join("\n");
+     const envBindingLines = aggregatedEnvBindings.map((b11) => `		${b11.key}${b11.required ? "" : "?"}: ${b11.type};`).join("\n");
+-    const globalPropsContent = entrypointModule ? `
+-	interface GlobalProps {
+-		mainModule: typeof import("${entrypointModule}");${configuredDurableObjects.length > 0 ? `
+-		durableNamespaces: ${configuredDurableObjects.map((d8) => `"${d8}"`).join(" | ")};` : ""}
+-	}` : "";
+-    baseContent = `declare namespace Cloudflare {${globalPropsContent}
+-${perEnvContent}
++    baseContent = `declare namespace Cloudflare {${perEnvContent}
+ 	interface Env {
+ ${envBindingLines}
+ 	}
+@@ -274111,11 +274105,7 @@ declare namespace NodeJS {
+ 	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, ${stringKeys.map((k7) => `"${k7}"`).join(" | ")}>> {}
+ }`;
+     }
+-    baseContent = `declare namespace Cloudflare {${entrypointModule ? `
+-	interface GlobalProps {
+-		mainModule: typeof import("${entrypointModule}");${configuredDurableObjects.length > 0 ? `
+-		durableNamespaces: ${configuredDurableObjects.map((d8) => `"${d8}"`).join(" | ")};` : ""}
+-	}` : ""}
++    baseContent = `declare namespace Cloudflare {
+ 	interface Env {${envTypeStructure.map((value) => `
+ 		${value}`).join("")}
+ 	}

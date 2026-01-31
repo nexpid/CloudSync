@@ -5,7 +5,7 @@
 	"compatibility_flags": [
 		"nodejs_compat",
 	],
-	"compatibility_date": "2025-09-04",
+	"compatibility_date": "2026-01-31",
 	"rules": [
 		{
 			"type": "CompiledWasm",
@@ -18,20 +18,20 @@
 			"fallthrough": true,
 		},
 	],
-	"unsafe": {
-		"bindings": [
-			// Ratelimit of max 20 requests/10s per user (production)
-			{
-				"name": "USER_RATELIMIT",
-				"type": "ratelimit",
-				"namespace_id": "1001",
-				"simple": {
-					"limit": 20,
-					"period": 10,
-				},
-			},
-		],
+	"define": {
+		"IS_PRODUCTION": "false",
 	},
+	// Ratelimit of max 20 requests/10s per user (production)
+	"ratelimits": [
+		{
+			"name": "USER_RATELIMIT",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 20,
+				"period": 10,
+			},
+		},
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -39,12 +39,8 @@
 			"database_id": "61cfcfdb-1845-4be8-9fd6-c4bdee4fa4c7",
 		},
 	],
-	"define": {
-		"IS_PRODUCTION": "false",
-	},
 	"observability": {
 		"enabled": true,
-		"head_sampling_rate": 1,
 	},
 	"triggers": {
 		"crons": [
