@@ -33,7 +33,7 @@ export async function migrateUserData(
 	if (data.version === latestDataVersion) {
 		return {
 			data: data.sync,
-			at: data.at,
+			at: data.at || new Date().toISOString(),
 		};
 	} else if (data.version === 1) {
 		try {
@@ -69,7 +69,7 @@ export async function migrateUserData(
 				userId: data.user,
 				error,
 			});
-			throw new Error(`Failed to migrate your data to v2: ${String(error)}`);
+			throw new Error(`Failed to migrate your data to v${latestDataVersion}: ${String(error)}`);
 		}
 	} else {
 		logger.error("Unkown data version", {

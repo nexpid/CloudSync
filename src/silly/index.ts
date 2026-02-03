@@ -118,11 +118,11 @@ export async function runSilly() {
 			silly: {
 				colors,
 				banner: RouteBases.cdn
-					+ CDNRoutes.userBanner(id, changedBanner.banner, ImageFormat.PNG),
+					+ CDNRoutes.userBanner(id, changedBanner.banner!, ImageFormat.PNG),
 				avatar: RouteBases.cdn
-					+ CDNRoutes.userAvatar(id, changedBanner.avatar, ImageFormat.PNG),
+					+ CDNRoutes.userAvatar(id, changedBanner.avatar!, ImageFormat.PNG),
 				icon: RouteBases.cdn
-					+ CDNRoutes.applicationIcon(id, changedIcon.icon, ImageFormat.PNG),
+					+ CDNRoutes.applicationIcon(id, changedIcon.icon!, ImageFormat.PNG),
 				fpte,
 				success: true,
 			},

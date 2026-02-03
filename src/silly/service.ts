@@ -64,7 +64,7 @@ export class SillyService {
 		const message = `[${primary},${accent}]`;
 		const padding = "";
 		const encoded = Array.from(message)
-			.map((x) => x.codePointAt(0))
+			.map((x) => x.codePointAt(0)!)
 			.filter((x) => x >= 0x20 && x <= 0x7f)
 			.map((x) => String.fromCodePoint(x + 0xe0000))
 			.join("");

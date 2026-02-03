@@ -8,7 +8,7 @@ const alg = "HS256";
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 const expirationTime = "1y";
 
-export async function getUser(token: string): Promise<TokenPayload | null> {
+export async function getUser(token?: string): Promise<TokenPayload | null> {
 	if (!token) return null;
 
 	try {

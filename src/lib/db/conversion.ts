@@ -35,7 +35,7 @@ export function reconstruct(data: string) {
 
 		if (enabled && enabled !== "1") {
 			storage = enabled;
-			enabled = null;
+			enabled = "";
 		}
 
 		try {

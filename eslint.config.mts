@@ -1,3 +1,4 @@
+import type { Plugin } from "@eslint/core";
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
@@ -40,7 +41,7 @@ export default defineConfig([
 	{
 		files: [`src/**/*.${pattern}`],
 		plugins: {
-			"typescript-paths": typescriptPaths,
+			"typescript-paths": typescriptPaths as Plugin,
 		},
 		rules: {
 			"typescript-paths/absolute-import": ["warn", { enableAlias: false }],

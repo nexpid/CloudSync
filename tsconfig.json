@@ -8,7 +8,7 @@
 		"lib": [
 			"ESNext"
 		],
-		"strictNullChecks": false,
+		"strictNullChecks": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
 		"types": [
@@ -21,7 +21,7 @@
 			"api/*": ["./src/api/*"],
 			"lib/*": ["./src/lib/*"],
 			"silly/*": ["./src/silly/*"],
-			"@/*": ["./src/*"]
+			"$/*": ["./src/*"]
 		}
 	},
 	"exclude": [
